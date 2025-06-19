@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Link,useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Logo from "../Images/Logo_PNG.png";
 import { MdOutlineMail } from "react-icons/md";
 import { IoLockClosed } from "react-icons/io5";
 import { RiEyeCloseLine } from "react-icons/ri";
 import { AiFillEye } from "react-icons/ai";
 import { FaInfoCircle } from "react-icons/fa";
+import { BiText } from "react-icons/bi";
+
 
 const Register = () => {
+  const [fullName, setFullName] = useState(""); // New full name field
   const [userType, setUserType] = useState("User");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,11 +24,16 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const passwordRegex =/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&])[A-Za-z\d@.#$!%*?&]{8,15}$/;
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&])[A-Za-z\d@.#$!%*?&]{8,15}$/;
 
   const navigate = useNavigate();
+
   const validateEmail = () => {
-    if (!emailRegex.test(email)) {
+    if(!email){
+      setEmailError("Email is required");
+    }
+    else if (!emailRegex.test(email)) {
       setEmailError("Invalid email format");
     } else {
       setEmailError("");
@@ -33,7 +41,10 @@ const Register = () => {
   };
 
   const validatePassword = () => {
-    if (!passwordRegex.test(password)) {
+    if(!password){
+      setPasswordError("Password is required");
+    }
+    else if (!passwordRegex.test(password)) {
       setPasswordError("Invalid password format");
     } else {
       setPasswordError("");
@@ -49,9 +60,8 @@ const Register = () => {
   };
 
   useEffect(() => {
-  validateConfirmPassword();
-}, [confirmPassword]);
-
+    validateConfirmPassword();
+  }, [confirmPassword]);
 
   const handleRegister = (e) => {
     e.preventDefault();
@@ -60,13 +70,12 @@ const Register = () => {
     validateConfirmPassword();
 
     if (emailError || passwordError || confirmPasswordError) return;
-    const regCreds = { userType, email, password};
+
+    const regCreds = { fullName, userType, email, password };
     console.log("Registration Credentials:", regCreds);
 
-    // Perform registration logic here
-    // For example, you can send the registration data to a server
-
-    // Reset form fields
+    // Clear form after registration
+    setFullName("");
     setEmail("");
     setPassword("");
     setConfirmPassword("");
@@ -78,6 +87,7 @@ const Register = () => {
   };
 
   const isFormValid =
+    fullName &&
     email &&
     password &&
     confirmPassword &&
@@ -88,7 +98,7 @@ const Register = () => {
   return (
     <div className="min-h-screen bg-cover bg-center flex items-center justify-center login-bg px-2 py-6 font-RobotoSlab">
       <div className="flex flex-col sm:flex-row-reverse rounded-3xl shadow-2xl overflow-hidden w-[90%] max-w-5xl bg-gradient-to-r from-[#004d8f] to-[#5cb4ff] h-fit sm:h-auto px-3 py-2">
-        {/* Right Section (Logo) */}
+        {/* Logo Section */}
         <div className="w-full sm:w-1/2 text-[#003767] p-8 flex flex-col justify-center items-center">
           <img
             src={Logo}
@@ -99,7 +109,7 @@ const Register = () => {
           <p className="text-3xl font-light mt-2 text-center">EventWave</p>
         </div>
 
-        {/* Left Section (Form) */}
+        {/* Form Section */}
         <form
           onSubmit={handleRegister}
           className="w-full sm:w-1/2 bg-white p-6 sm:p-10 relative sm:m-3 curved-container-register rounded-tl-3xl rounded-bl-3xl flex flex-col justify-center"
@@ -107,6 +117,21 @@ const Register = () => {
           <h2 className="text-2xl font-semibold text-gray-700 mb-8 text-center mt-12 sm:mt-6">
             Register
           </h2>
+
+          {/* Full Name */}
+          <div className="mb-3 w-[85%] mx-auto">
+            <div className="flex items-center bg-gray-100 rounded-xl outline-2 outline-indigo-400/50 px-4 py-2">
+              <span className="text-2xl"><BiText/></span>
+              <input
+                type="text"
+                placeholder="Full Name*"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="bg-transparent w-full outline-none ml-2"
+                required
+              />
+            </div>
+          </div>
 
           {/* Email */}
           <div className="mb-3 w-[85%] mx-auto">
@@ -149,7 +174,6 @@ const Register = () => {
                 >
                   {showPassword ? <RiEyeCloseLine /> : <AiFillEye />}
                 </span>
-                {/* Info Icon */}
                 <div className="relative group">
                   <span className="text-blue-500 cursor-pointer text-base">
                     <FaInfoCircle />
@@ -174,41 +198,42 @@ const Register = () => {
           </div>
 
           {/* Confirm Password */}
-<div className="mb-6 w-[85%] mx-auto">
-  <div
-    className={`flex items-center bg-gray-100 rounded-xl px-4 py-2 relative outline-2 ${
-      confirmPassword
-        ? confirmPassword === password
-          ? "outline-green-500"
-          : "outline-red-500"
-        : "outline-indigo-400/50"
-    }`}
-  >
-    <span className="text-2xl">
-      <IoLockClosed />
-    </span>
-    <input
-      type={showConfirmPassword ? "text" : "password"}
-      placeholder="Confirm Password*"
-      value={confirmPassword}
-      onChange={(e) => setConfirmPassword(e.target.value)}
-      onBlur={validateConfirmPassword}
-      className="bg-transparent w-full outline-none ml-2 pr-8"
-    />
-    <span
-      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-      className="absolute right-4 text-gray-500 cursor-pointer text-lg"
-    >
-      {showConfirmPassword ? <RiEyeCloseLine /> : <AiFillEye />}
-    </span>
-  </div>
-  {confirmPasswordError && (
-    <p className="text-sm text-red-600 mt-1">{confirmPasswordError}</p>
-  )}
-</div>
+          <div className="mb-6 w-[85%] mx-auto">
+            <div
+              className={`flex items-center bg-gray-100 rounded-xl px-4 py-2 relative outline-2 ${
+                confirmPassword
+                  ? confirmPassword === password
+                    ? "outline-green-500"
+                    : "outline-red-500"
+                  : "outline-indigo-400/50"
+              }`}
+            >
+              <span className="text-2xl">
+                <IoLockClosed />
+              </span>
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Confirm Password*"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                onBlur={validateConfirmPassword}
+                className="bg-transparent w-full outline-none ml-2 pr-8"
+              />
+              <span
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-4 text-gray-500 cursor-pointer text-lg"
+              >
+                {showConfirmPassword ? <RiEyeCloseLine /> : <AiFillEye />}
+              </span>
+            </div>
+            {confirmPasswordError && (
+              <p className="text-sm text-red-600 mt-1">
+                {confirmPasswordError}
+              </p>
+            )}
+          </div>
 
-
-          {/* Role Dropdown */}
+          {/* Role Selector */}
           <div className="mb-4 w-[85%] mx-auto">
             <label className="block text-sm text-gray-700 mb-1">
               Select Role
@@ -223,7 +248,7 @@ const Register = () => {
             </select>
           </div>
 
-          {/* Register Button */}
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={!isFormValid}
