@@ -1,0 +1,25 @@
+.login-bg{
+    background-image: url('./Images/Login_Bg_Image.jpg');
+    background-size: cover;
+    background-position: center;
+}
+.curved-container-login {
+  border-top-left-radius: 100px;
+  border-bottom-left-radius: 100px;
+}
+.curved-container-register {
+  border-top-right-radius: 100px;
+  border-bottom-right-radius: 100px;
+}
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.float-animation {
+  animation: float 2s ease-in-out infinite;
+}

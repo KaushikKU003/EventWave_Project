@@ -1,0 +1,181 @@
+import React, { useState } from "react";
+import Logo from "../Images/Logo_PNG.png";
+import { MdOutlineMail } from "react-icons/md";
+import { IoLockClosed } from "react-icons/io5";
+import { Link,useNavigate } from "react-router-dom";
+import { RiEyeCloseLine } from "react-icons/ri";
+import { AiFillEye } from "react-icons/ai";
+import "../App.css";
+
+const Login = () => {
+  const [userType, setUserType] = useState("User");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [loginError] = useState("");
+
+  const navigate = useNavigate();
+
+  const isUser = userType === "User";
+
+  const gradient = isUser
+    ? "from-[#e9cbf0] to-[#712681]"
+    : "from-[#ffb62a] to-[#ffd990]";
+
+  const buttonColor = isUser
+    ? "bg-[#712681] hover:bg-[#ae3dc6]"
+    : "bg-[#e29400] hover:bg-[#c88400]";
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    console.log("Called");
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      setEmailError("Please enter a valid email address.");
+      return;
+    }
+
+    // Clear error if valid
+    setEmailError("");
+
+    const loginCreds = {
+      userType,
+      email,
+      password,
+    };
+
+    console.log("Login Credentials:", loginCreds);
+    setEmail("");
+    setPassword("");
+    setEmailError("");
+
+    navigate("/")
+    //⚠⚠⚠Proceed with login logic
+  };
+
+  return (
+    <div className="min-h-screen bg-cover bg-center flex items-center justify-center login-bg px-2 py-6 font-RobotoSlab">
+      <div
+        className={`flex flex-col sm:flex-row rounded-3xl shadow-2xl overflow-hidden w-[90%] max-w-5xl bg-gradient-to-r ${gradient} h-fit sm:h-auto px-3 py-2`}
+      >
+        {/* Left Section */}
+        <div className="w-full sm:w-1/2 text-[#5c076f] p-8 flex flex-col justify-center items-center">
+          <img
+            src={Logo}
+            alt="EventWave Logo"
+            className="h-24 mb-4 float-animation"
+          />
+          <h2 className="text-2xl font-semibold">Welcome to</h2>
+          <p className="text-3xl font-light mt-2 text-center">EventWave</p>
+        </div>
+
+        {/* Right Section */}
+        <div className="w-full sm:w-1/2 bg-white p-6 sm:p-10 relative sm:m-3 curved-container-login rounded-tr-3xl rounded-br-3xl flex flex-col justify-center">
+          {/* Toggle */}
+          <div className="absolute top-4 sm:top-6 right-4 sm:right-6 flex space-x-1 bg-[#d8328e] text-white p-1 rounded-full font-bold z-10">
+            <button
+              onClick={() => {
+                setUserType("User");
+                setEmail("");
+                setPassword("");
+                setEmailError("");
+              }}
+              className={`px-2 py-1 rounded-full text-sm ${
+                isUser ? "bg-white text-blue-900" : "hover:bg-[#b02271]"
+              }`}
+            >
+              User
+            </button>
+            <button
+              onClick={() => {
+                setUserType("Organizer");
+                setEmail("");
+                setPassword("");
+                setEmailError("");
+              }}
+              className={`px-2 py-1 rounded-full text-sm ${
+                !isUser ? "bg-white text-blue-900" : "hover:bg-[#b02271]"
+              }`}
+            >
+              Organizer
+            </button>
+          </div>
+
+          <h2 className="text-2xl font-semibold text-[#5c076f] mb-8 text-center mt-12 sm:mt-6">
+            {userType} Login
+          </h2>
+
+          {/* Login Form */}
+          <form onSubmit={handleLogin} className="flex flex-col items-center">
+            {/* Email Input */}
+            <div className="mb-6 flex items-center bg-gray-100 rounded-xl outline-2 outline-purple-800/50 px-4 py-2 w-[85%]">
+              <span className="text-2xl">
+                <MdOutlineMail />
+              </span>
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="bg-transparent w-full outline-none ml-2"
+                required
+              />
+            </div>
+            {/* Email error message */}
+            {emailError && (
+              <p className="text-red-600 text-sm ml-10 -mt-1 mb-4">
+                {emailError}
+              </p>
+            )}
+
+            {/* Password Input */}
+            <div className="mb-4 flex items-center bg-gray-100 rounded-xl outline-2 outline-purple-800/50 px-4 py-2 w-[85%] relative">
+              <span className="text-2xl">
+                <IoLockClosed />
+              </span>
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="bg-transparent w-full outline-none ml-2 pr-8"
+                required
+              />
+              <span
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 text-gray-500 cursor-pointer text-lg"
+              >
+                {showPassword ? <RiEyeCloseLine /> : <AiFillEye />}
+              </span>
+            </div>
+
+            {loginError && (
+              <p className="text-red-600 text-sm ml-10 -mt-1 mb-4">
+                {loginError}
+              </p>
+            )}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              className={`w-[85%] text-white py-2 rounded-full font-semibold transition ${buttonColor}`}
+            >
+              LOGIN
+            </button>
+          </form>
+          <p className="mt-2.5 text-center">
+            Don't have an account?{" "}
+            <Link to="/register">
+              <span className="text-[#d8328e]">Register</span>
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Login;
