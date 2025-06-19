@@ -1,95 +1,161 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUserCircle, FaListUl } from "react-icons/fa";
-import Logo from "../Images/Logo_PNG.png";
+import {
+  FaRegBookmark,
+  FaBookmark,
+  FaMicrophone,
+  FaGuitar,
+  FaFutbol,
+  FaLaptopCode,
+} from "react-icons/fa";
 
 const Dashboard = () => {
   const [userType, setUserType] = useState("User");
   const [events, setEvents] = useState([]);
+  const [favorites, setFavorites] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Replace with actual userType fetching logic
-    const storedType = localStorage.getItem("userType") || "User";
+    const storedType = "User"; // Replace with actual logic
     setUserType(storedType);
 
-    // Fetch relevant events based on role (mocked for now)
-    if (storedType === "User") {
-      setEvents([
-        { id: 1, name: "Tech Conference", date: "2025-07-01" },
-        { id: 2, name: "Startup Meetup", date: "2025-07-10" },
-      ]);
-    } else {
-      setEvents([
-        { id: 101, name: "Organizer Expo", date: "2025-07-05" },
-        { id: 102, name: "Product Launch", date: "2025-07-15" },
-      ]);
-    }
+    const fetchEvents = async () => {
+      try {
+        // Simulated event data
+        if (storedType === "User") {
+          setEvents([
+            {
+              id: 1,
+              name: "Tech Conference",
+              date: "2025-07-01",
+              category: "tech",
+              description: "Explore the future of tech",
+            },
+            {
+              id: 2,
+              name: "Music Festival",
+              date: "2025-07-10",
+              category: "music",
+              description: "Live performances and more",
+            },
+          ]);
+        } else {
+          setEvents([
+            {
+              id: 101,
+              name: "Startup Pitch",
+              date: "2025-07-05",
+              category: "business",
+              description: "Pitch your idea to investors",
+            },
+            {
+              id: 102,
+              name: "Football Mania",
+              date: "2025-07-15",
+              category: "sports",
+              description: "Local teams clash!",
+            },
+          ]);
+        }
+      } catch (err) {
+        console.error("Error fetching events:", err);
+      }
+    };
+
+    fetchEvents();
   }, []);
 
   const handleEventClick = (id) => {
     navigate(`/event/${id}`);
   };
 
-  const handleProfileClick = () => {
-    navigate("/profile");
+  const toggleFavorite = (id) => {
+    setFavorites((prev) => ({ ...prev, [id]: !prev[id] }));
   };
-
-  const handleEventListingClick = () => {
-    navigate("/events");
-  };
-
-  const gradient =
-    userType === "User"
-      ? "from-[#e9cbf0] to-[#712681]"
-      : "from-[#ffb62a] to-[#ffd990]";
 
   const headingText =
-    userType === "User" ? "Registered Events" : "Your Upcoming Events";
+    userType === "User" ? "Your Registered Events" : "Your Upcoming Events";
+
+  const getGradient = (index) => {
+    const gradients = [
+      "from-[#9030a5] to-[#d8328e]",
+      "from-[#ff5871] to-[#ff8d58]",
+      "from-[#ffc453] to-[#f9f871]",
+    ];
+    return gradients[index % gradients.length];
+  };
+
+  const getPillColor = () =>
+    userType === "User" ? "bg-[#712681]" : "bg-[#ffb62a]";
+
+  const categoryIcons = {
+    tech: <FaLaptopCode size={50} className="text-[#712681]" />,
+    music: <FaGuitar size={50} className="text-[#712681]" />,
+    sports: <FaFutbol size={50} className="text-[#712681]" />,
+    business: <FaMicrophone size={50} className="text-[#712681]" />,
+  };
 
   return (
-    <div className="min-h-screen bg-cover bg-center login-bg px-4 py-6 font-RobotoSlab">
-      <div
-        className={`bg-gradient-to-r ${gradient} rounded-3xl shadow-2xl max-w-6xl mx-auto px-6 py-8`}
-      >
-        <div className="flex justify-between items-center mb-6">
-          <img
-            src={Logo}
-            alt="EventWave Logo"
-            className="h-12 float-animation"
-          />
-          <div className="flex gap-4 text-2xl text-white drop-shadow-md">
-            <FaListUl
-              className="cursor-pointer hover:text-gray-300 hover:drop-shadow-lg transition"
-              title="Event Listing"
-              onClick={handleEventListingClick}
-            />
-            <FaUserCircle
-              className="cursor-pointer hover:text-gray-300 hover:drop-shadow-lg transition"
-              title="Profile"
-              onClick={handleProfileClick}
-            />
-          </div>
-        </div>
+    <div className="min-h-screen bg-white px-6 py-12 font-RobotoSlab">
+      <h2 className="text-4xl font-bold text-center text-[#712681] mb-12 drop-shadow">
+        {headingText}
+      </h2>
 
-        <h2 className="text-3xl font-bold text-center text-white mb-8 drop-shadow-md">
-          {headingText}
-        </h2>
-
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {events.map((event) => (
+      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
+        {events.map((event, index) => (
+          <div
+            key={event.id}
+            className="relative bg-[#fef7ff] rounded-xl shadow hover:shadow-xl transition duration-300 border border-gray-200 text-center flex flex-col items-center"
+          >
+            {/* Gradient Top Border */}
             <div
-              key={event.id}
-              onClick={() => handleEventClick(event.id)}
-              className="bg-white rounded-2xl p-4 shadow-md hover:shadow-xl cursor-pointer transition duration-300"
+              className={`h-2 w-full rounded-t-xl bg-gradient-to-r ${getGradient(
+                index
+              )}`}
+            ></div>
+
+            {/* Favorite Icon - Top Right */}
+            <button
+              onClick={() => toggleFavorite(event.id)}
+              className="absolute top-4 right-3 z-10"
             >
-              <h3 className="text-xl font-semibold text-[#5c076f]">
-                {event.name}
-              </h3>
-              <p className="text-gray-600 mt-1">Date: {event.date}</p>
+              {favorites[event.id] ? (
+                <FaBookmark className="text-[#d8328e] text-lg" />
+              ) : (
+                <FaRegBookmark className="text-[#d8328e] text-lg" />
+              )}
+            </button>
+
+            {/* Icon */}
+            <div className="mt-6 z-0">{categoryIcons[event.category]}</div>
+
+            {/* Title */}
+            <h3 className="text-xl font-semibold text-[#5c076f] mt-4 z-0">
+              {event.name}
+            </h3>
+
+            {/* Description */}
+            <p className="text-gray-600 px-4 mt-2 z-0">{event.description}</p>
+
+            {/* Date */}
+            <p className="text-sm text-gray-500 mt-1 z-0">Date: {event.date}</p>
+
+            {/* Registered/Organized Pill (Bottom) */}
+            <div className="mt-4 mb-5">
+              <span
+                className={`text-xs text-white ${getPillColor()} px-3 py-1 rounded-full font-medium shadow`}
+              >
+                {userType === "User" ? "Registered" : "Organized"}
+              </span>
             </div>
-          ))}
-        </div>
+
+            {/* Clickable Overlay */}
+            <div
+              onClick={() => handleEventClick(event.id)}
+              className="absolute inset-0 z-0"
+            ></div>
+          </div>
+        ))}
       </div>
     </div>
   );
