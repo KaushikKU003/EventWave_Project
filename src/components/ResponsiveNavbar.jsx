@@ -25,11 +25,7 @@ const ResponsiveNavbar = () => {
       <div className="max-w-[1240px] mx-auto px-4 flex justify-between items-center h-[90px]">
         {/* Logo */}
         <Link to="/">
-          <img
-            src={Logo}
-            alt="EventWave Logo"
-            className="h-10 float-animation"
-          />
+          <img src={Logo} alt="EventWave Logo" className="h-10" />
         </Link>
 
         {/* Desktop menu */}
