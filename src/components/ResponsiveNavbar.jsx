@@ -61,10 +61,13 @@ const ResponsiveNavbar = () => {
                 </button>
               </Link>
             ) : (
-              <div className="flex items-center gap-2 text-white">
+              <Link
+                to="/profile"
+                className="flex items-center gap-2 text-white hover:text-[#fcddec] transition"
+              >
                 <FaUserCircle size={24} />
                 <span className="font-medium">{userName}</span>
-              </div>
+              </Link>
             )}
           </div>
         </ul>
@@ -126,9 +129,15 @@ const ResponsiveNavbar = () => {
                 </Link>
               </li>
             ) : (
-              <li className="flex items-center gap-2">
-                <FaUserCircle size={22} />
-                <span className="font-medium">{userName}</span>
+              <li>
+                <Link
+                  to="/profile"
+                  onClick={handleNav}
+                  className="flex items-center gap-2 hover:text-[#fcddec] transition"
+                >
+                  <FaUserCircle size={22} />
+                  <span className="font-medium">{userName}</span>
+                </Link>
               </li>
             )}
           </ul>
