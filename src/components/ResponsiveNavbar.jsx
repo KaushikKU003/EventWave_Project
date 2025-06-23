@@ -1,59 +1,55 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import { AiOutlineClose, AiOutlineMenu } from "react-icons/ai";
 import { Link, Outlet } from "react-router-dom";
 import Logo from "../Images/Logo_PNG.png";
 import { FaUserCircle } from "react-icons/fa";
+import { AuthContext } from "../context/AuthContext";
 
 const ResponsiveNavbar = () => {
-  const [showNav, setShowNav] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState("");
+  const [showMobileNav, setShowMobileNav] = useState(false);
+  const { isLoggedIn, userName, logout } = useContext(AuthContext);
 
-  const handleNav = () => setShowNav(!showNav);
-
-  useEffect(() => {
-    // Replace with real login check
-    const user = "Jeffy";
-    if (user) {
-      setIsLoggedIn(true);
-      setUserName(user);
-    }
-  }, []);
+  const handleLogout = () => {
+    logout();
+    setShowMobileNav(false);
+  };
 
   return (
-    <div className="w-full h-[90px] fixed top-0 z-50 bg-gradient-to-r from-[#e9cbf0] to-[#712681] shadow-md font-RobotoSlab">
-      <div className="max-w-[1240px] mx-auto px-4 flex justify-between items-center h-[90px]">
-        {/* Logo */}
-        <Link to="/">
-          <img src={Logo} alt="EventWave Logo" className="h-10" />
-        </Link>
+    <>
+      <nav className="w-full fixed top-0 z-50 bg-gradient-to-r from-[#e9cbf0] to-[#712681] shadow-md font-RobotoSlab">
+        <div className="max-w-[1240px] mx-auto px-4 flex justify-between items-center h-[90px] relative">
+          {/* Logo */}
+          <Link to="/">
+            <img src={Logo} alt="EventWave Logo" className="h-10" />
+          </Link>
 
-        {/* Desktop menu */}
-        <ul className="hidden md:flex items-center gap-8 text-white font-medium">
-          <li>
-            <Link to="/" className="hover:text-[#fcddec] transition">
-              Home
-            </Link>
-          </li>
-          <li>
-            <Link to="/about" className="hover:text-[#fcddec] transition">
-              About
-            </Link>
-          </li>
-          <li>
-            <Link to="/events" className="hover:text-[#fcddec] transition">
-              Events
-            </Link>
-          </li>
-          {isLoggedIn && (
+          {/* Desktop menu */}
+          <ul className="hidden md:flex items-center gap-8 text-white font-medium">
             <li>
-              <Link to="/dashboard" className="hover:text-[#fcddec] transition">
-                Dashboard
+              <Link to="/" className="hover:text-[#fcddec] transition">
+                Home
               </Link>
             </li>
-          )}
-
-          <div className="hidden md:flex items-center gap-4">
+            <li>
+              <Link to="/about" className="hover:text-[#fcddec] transition">
+                About
+              </Link>
+            </li>
+            <li>
+              <Link to="/events" className="hover:text-[#fcddec] transition">
+                Events
+              </Link>
+            </li>
+            {isLoggedIn && (
+              <li>
+                <Link
+                  to="/dashboard"
+                  className="hover:text-[#fcddec] transition"
+                >
+                  Dashboard
+                </Link>
+              </li>
+            )}
             {!isLoggedIn ? (
               <Link to="/login">
                 <button className="px-6 py-2 bg-white text-[#712681] border border-[#712681] rounded-full hover:bg-[#f1e6f7] transition">
@@ -61,31 +57,46 @@ const ResponsiveNavbar = () => {
                 </button>
               </Link>
             ) : (
-              <Link
-                to="/profile"
-                className="flex items-center gap-2 text-white hover:text-[#fcddec] transition"
-              >
-                <FaUserCircle size={24} />
-                <span className="font-medium">{userName}</span>
-              </Link>
+              <div className="flex items-center gap-4">
+                <Link
+                  to="/profile"
+                  className="flex items-center gap-2 text-white hover:text-[#fcddec] transition"
+                >
+                  <FaUserCircle size={24} />
+                  <span className="font-medium">{userName}</span>
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="text-sm px-4 py-1.5 bg-white text-[#712681] border border-white rounded-full hover:bg-[#f1e6f7] transition"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </ul>
+
+          {/* Mobile toggle icon */}
+          <div
+            className="md:hidden text-white z-50"
+            onClick={() => setShowMobileNav(!showMobileNav)}
+          >
+            {showMobileNav ? (
+              <AiOutlineClose size={24} />
+            ) : (
+              <AiOutlineMenu size={24} />
             )}
           </div>
-        </ul>
 
-        {/* Mobile toggle icon */}
-        <div className="md:hidden text-white" onClick={handleNav}>
-          {showNav ? <AiOutlineClose size={24} /> : <AiOutlineMenu size={24} />}
-        </div>
-      </div>
-
-      {/* Mobile menu */}
-      {showNav && (
-        <div className="md:hidden bg-gradient-to-b from-[#e9cbf0] to-[#712681] text-white font-medium flex flex-col items-center justify-center py-10 space-y-6 shadow-lg">
-          <ul className="flex flex-col items-center space-y-4">
+          {/* Mobile menu */}
+          <ul
+            className={`absolute top-[90px] left-0 w-full bg-gradient-to-b from-[#e9cbf0] to-[#712681] text-white font-medium flex flex-col items-center py-6 space-y-4 transition-all duration-300 md:hidden ${
+              showMobileNav ? "block" : "hidden"
+            }`}
+          >
             <li>
               <Link
                 to="/"
-                onClick={handleNav}
+                onClick={() => setShowMobileNav(false)}
                 className="hover:text-[#fcddec] transition"
               >
                 Home
@@ -94,7 +105,7 @@ const ResponsiveNavbar = () => {
             <li>
               <Link
                 to="/about"
-                onClick={handleNav}
+                onClick={() => setShowMobileNav(false)}
                 className="hover:text-[#fcddec] transition"
               >
                 About
@@ -103,7 +114,7 @@ const ResponsiveNavbar = () => {
             <li>
               <Link
                 to="/events"
-                onClick={handleNav}
+                onClick={() => setShowMobileNav(false)}
                 className="hover:text-[#fcddec] transition"
               >
                 Events
@@ -113,7 +124,7 @@ const ResponsiveNavbar = () => {
               <li>
                 <Link
                   to="/dashboard"
-                  onClick={handleNav}
+                  onClick={() => setShowMobileNav(false)}
                   className="hover:text-[#fcddec] transition"
                 >
                   Dashboard
@@ -122,30 +133,43 @@ const ResponsiveNavbar = () => {
             )}
             {!isLoggedIn ? (
               <li>
-                <Link to="/login" onClick={handleNav}>
+                <Link to="/login" onClick={() => setShowMobileNav(false)}>
                   <button className="px-6 py-2 bg-white text-[#712681] border border-[#712681] rounded-full hover:bg-[#f1e6f7] transition">
                     Login
                   </button>
                 </Link>
               </li>
             ) : (
-              <li>
-                <Link
-                  to="/profile"
-                  onClick={handleNav}
-                  className="flex items-center gap-2 hover:text-[#fcddec] transition"
-                >
-                  <FaUserCircle size={22} />
-                  <span className="font-medium">{userName}</span>
-                </Link>
-              </li>
+              <>
+                <li>
+                  <Link
+                    to="/profile"
+                    onClick={() => setShowMobileNav(false)}
+                    className="flex items-center gap-2 hover:text-[#fcddec] transition"
+                  >
+                    <FaUserCircle size={22} />
+                    <span className="font-medium">{userName}</span>
+                  </Link>
+                </li>
+                <li>
+                  <button
+                    onClick={handleLogout}
+                    className="text-sm px-6 py-2 bg-white text-[#712681] border border-white rounded-full hover:bg-[#f1e6f7] transition"
+                  >
+                    Logout
+                  </button>
+                </li>
+              </>
             )}
           </ul>
         </div>
-      )}
+      </nav>
 
-      <Outlet />
-    </div>
+      {/* Push content below nav */}
+      <div className="pt-[90px]">
+        <Outlet />
+      </div>
+    </>
   );
 };
 

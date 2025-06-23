@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import { useState, useContext } from "react";
 import Logo from "../Images/Logo_PNG.png";
 import { MdOutlineMail } from "react-icons/md";
 import { IoLockClosed } from "react-icons/io5";
-import { Link,useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { RiEyeCloseLine } from "react-icons/ri";
 import { AiFillEye } from "react-icons/ai";
 import "../App.css";
+import { AuthContext } from "../context/AuthContext";
 
 const Login = () => {
   const [userType, setUserType] = useState("User");
@@ -13,9 +14,47 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState("");
-  const [loginError] = useState("");
+  const [loginError, setLoginError] = useState("");
 
+  const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      setEmailError("Please enter a valid email address.");
+      return;
+    } else {
+      setEmailError("");
+    }
+
+    const users = JSON.parse(localStorage.getItem("registeredUsers")) || [];
+
+    const matchedUser = users.find(
+      (user) =>
+        user.email === email &&
+        user.password === password &&
+        user.role === userType
+    );
+
+    if (matchedUser) {
+      login({
+        name: matchedUser.name,
+        role: matchedUser.role,
+        email: matchedUser.email,
+      });
+
+      setLoginError("");
+      setEmail("");
+      setPassword("");
+      navigate("/dashboard");
+    } else {
+      setLoginError("Invalid credentials. Please try again.");
+    }
+  };
 
   const isUser = userType === "User";
 
@@ -26,35 +65,6 @@ const Login = () => {
   const buttonColor = isUser
     ? "bg-[#712681] hover:bg-[#ae3dc6]"
     : "bg-[#e29400] hover:bg-[#c88400]";
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    console.log("Called");
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!emailRegex.test(email)) {
-      setEmailError("Please enter a valid email address.");
-      return;
-    }
-
-    // Clear error if valid
-    setEmailError("");
-
-    const loginCreds = {
-      userType,
-      email,
-      password,
-    };
-
-    console.log("Login Credentials:", loginCreds);
-    setEmail("");
-    setPassword("");
-    setEmailError("");
-
-    navigate("/")
-    //⚠⚠⚠Proceed with login logic
-  };
 
   return (
     <div className="min-h-screen bg-cover bg-center flex items-center justify-center login-bg px-2 py-6 font-RobotoSlab">
@@ -82,6 +92,7 @@ const Login = () => {
                 setEmail("");
                 setPassword("");
                 setEmailError("");
+                setLoginError("");
               }}
               className={`px-2 py-1 rounded-full text-sm ${
                 isUser ? "bg-white text-blue-900" : "hover:bg-[#b02271]"
@@ -95,6 +106,7 @@ const Login = () => {
                 setEmail("");
                 setPassword("");
                 setEmailError("");
+                setLoginError("");
               }}
               className={`px-2 py-1 rounded-full text-sm ${
                 !isUser ? "bg-white text-blue-900" : "hover:bg-[#b02271]"
@@ -124,7 +136,6 @@ const Login = () => {
                 required
               />
             </div>
-            {/* Email error message */}
             {emailError && (
               <p className="text-red-600 text-sm ml-10 -mt-1 mb-4">
                 {emailError}
@@ -166,6 +177,7 @@ const Login = () => {
               LOGIN
             </button>
           </form>
+
           <p className="mt-2.5 text-center">
             Don't have an account?{" "}
             <Link to="/register">

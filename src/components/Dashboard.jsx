@@ -1,29 +1,30 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  FaRegBookmark,
-  FaBookmark,
-  FaMicrophone,
-  FaGuitar,
-  FaFutbol,
-  FaLaptopCode,
-} from "react-icons/fa";
+import { FaMicrophone, FaGuitar, FaFutbol, FaLaptopCode } from "react-icons/fa";
 import EventCard from "./EventCard";
+import { AuthContext } from "../context/AuthContext";
 
 const Dashboard = () => {
-  const [userType, setUserType] = useState("User");
+  const { role: userType, isLoggedIn } = useContext(AuthContext);
   const [events, setEvents] = useState([]);
   const [favorites, setFavorites] = useState({});
   const navigate = useNavigate();
 
+  // Redirect if user is not logged in (after auth is initialized)
   useEffect(() => {
-    const storedType = "Org"; // Replace with actual logic (e.g. from context)
-    setUserType(storedType);
+    if (isLoggedIn === false) {
+      navigate("/login");
+    }
+  }, [isLoggedIn, navigate]);
+
+  // Load dummy events based on role
+  useEffect(() => {
+    if (!userType) return;
 
     const fetchEvents = async () => {
       try {
         const dummyEvents =
-          storedType === "User"
+          userType === "User"
             ? [
                 {
                   id: 1,
@@ -63,7 +64,7 @@ const Dashboard = () => {
     };
 
     fetchEvents();
-  }, []);
+  }, [userType]);
 
   const handleEventClick = (id) => {
     navigate(`/event/${id}`);
