@@ -5,6 +5,9 @@ import Logo from "../Images/Logo_PNG.png";
 import { FaUserCircle } from "react-icons/fa";
 import { AuthContext } from "../context/AuthContext";
 
+import {ToastContainer, toast, Bounce } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const ResponsiveNavbar = () => {
   const [showMobileNav, setShowMobileNav] = useState(false);
   const { isLoggedIn, userName, logout } = useContext(AuthContext);
@@ -12,6 +15,12 @@ const ResponsiveNavbar = () => {
   const handleLogout = () => {
     logout();
     setShowMobileNav(false);
+    toast.success("Logged out successfully", {
+      position: "top-left",
+      autoClose: 2000,
+      theme: "colored",
+      transition: Bounce,
+    });
   };
 
   return (
