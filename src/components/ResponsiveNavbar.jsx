@@ -74,13 +74,13 @@ const ResponsiveNavbar = () => {
                 <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg opacity-0 group-hover:opacity-100 group-hover:visible invisible transition duration-200 z-50">
                   <Link
                     to="/profile"
-                    className="block px-4 py-2 text-[#712681] hover:bg-[#f1e6f7] transition"
+                    className="block px-4 py-2 text-[#712681] hover:bg-[#f1e6f7] rounded transition"
                   >
                     Profile
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="block w-full text-left px-4 py-2 text-[#712681] hover:bg-[#f1e6f7] transition"
+                    className="block w-full text-left px-4 py-2 text-[#712681] hover:bg-[#f1e6f7] rounded transition"
                   >
                     Logout
                   </button>

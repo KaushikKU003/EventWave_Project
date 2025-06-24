@@ -40,7 +40,7 @@ const Login = () => {
       password: password,
       role: userType,
     };
-    console.log(loginCredentials);
+    // console.log(loginCredentials);
 
     try {
       const response = await axios.post(
@@ -54,10 +54,10 @@ const Login = () => {
       );
       // Extract user from response
       const { token, user } = response.data;
-
+      console.log(user.fullName);
       // Update context
       login({
-        username: user.username,
+        fullName: user.fullName,
         role: user.role,
         token: token,
       });

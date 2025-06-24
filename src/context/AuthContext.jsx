@@ -1,4 +1,4 @@
-import { createContext, useState,useEffect} from "react";
+import { createContext, useState, useEffect } from "react";
 import { useCookies } from "react-cookie";
 
 // Create context
@@ -16,20 +16,20 @@ export const AuthProvider = ({ children }) => {
     if (cookies.user && cookies.token) {
       setIsLoggedIn(true);
       setRole(cookies.user.role);
-      setUserName(cookies.user.username);
+      setUserName(cookies.user.fullName);
       setToken(cookies.token);
     }
   }, [cookies]);
 
   // Login method (used in Login.jsx)
-   const login = ({ username, role, token }) => {
+  const login = ({ fullName, role, token }) => {
     setIsLoggedIn(true);
     setRole(role);
-    setUserName(username);
+    setUserName(fullName);
     setToken(token);
 
     // Save to cookies
-    setCookie("user", { username, role }, { path: "/", maxAge: 86400 }); // 1 day
+    setCookie("user", { fullName, role }, { path: "/", maxAge: 86400 }); // 1 day
     setCookie("token", token, { path: "/", maxAge: 86400 }); // 1 day
   };
 
@@ -39,13 +39,15 @@ export const AuthProvider = ({ children }) => {
     setRole("");
     setUserName("");
     setToken("");
-    
+
     removeCookie("user");
     removeCookie("token");
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, role, userName, token, login, logout }}>
+    <AuthContext.Provider
+      value={{ isLoggedIn, role, userName, token, login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );
