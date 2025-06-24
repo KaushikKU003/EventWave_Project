@@ -5,7 +5,7 @@ import Logo from "../Images/Logo_PNG.png";
 import { FaUserCircle } from "react-icons/fa";
 import { AuthContext } from "../context/AuthContext";
 
-import {ToastContainer, toast, Bounce } from "react-toastify";
+import { ToastContainer, toast, Bounce } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const ResponsiveNavbar = () => {
@@ -66,20 +66,25 @@ const ResponsiveNavbar = () => {
                 </button>
               </Link>
             ) : (
-              <div className="flex items-center gap-4">
-                <Link
-                  to="/profile"
-                  className="flex items-center gap-2 text-white hover:text-[#fcddec] transition"
-                >
+              <div className="relative group">
+                <button className="flex items-center gap-2 text-white hover:text-[#fcddec] transition focus:outline-none">
                   <FaUserCircle size={24} />
                   <span className="font-medium">{userName}</span>
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="text-sm px-4 py-1.5 bg-white text-[#712681] border border-white rounded-full hover:bg-[#f1e6f7] transition"
-                >
-                  Logout
                 </button>
+                <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg opacity-0 group-hover:opacity-100 group-hover:visible invisible transition duration-200 z-50">
+                  <Link
+                    to="/profile"
+                    className="block px-4 py-2 text-[#712681] hover:bg-[#f1e6f7] transition"
+                  >
+                    Profile
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-4 py-2 text-[#712681] hover:bg-[#f1e6f7] transition"
+                  >
+                    Logout
+                  </button>
+                </div>
               </div>
             )}
           </ul>
