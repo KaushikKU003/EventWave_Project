@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { MdOutlineMail } from "react-icons/md";
 import { IoLockClosed } from "react-icons/io5";
@@ -8,14 +9,19 @@ import { FaInfoCircle } from "react-icons/fa";
 import { BiText } from "react-icons/bi";
 import Logo from "../Images/Logo_PNG.png";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+
 const Register = () => {
   const [fullName, setFullName] = useState("");
-  const [userType, setUserType] = useState("User");
+  const [userType, setUserType] = useState("USER");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const [emailError, setEmailError] = useState("");
+  const [serverEmailError, setServerEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -59,7 +65,7 @@ const Register = () => {
     validateConfirmPassword();
   }, [confirmPassword]);
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     validateEmail();
     validatePassword();
@@ -68,33 +74,49 @@ const Register = () => {
     if (emailError || passwordError || confirmPasswordError) return;
 
     const regCreds = {
-      name: fullName,
-      role: userType,
+      fullName: fullName,
       email,
       password,
+      role: userType,
     };
+    // console.log(regCreds);
+    try {
+      const response = await axios.post(
+        "https://backend-eventwave-production.up.railway.app/api/auth/register",
+        regCreds,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      // Success response: "User registered successfully"
+      // alert(response.data || "Registration successful!");
+      toast.success(response.data || "Registration successful!");
+      setFullName("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+      setEmailError("");
+      setPasswordError("");
+      setConfirmPasswordError("");
 
-    const existingUsers =
-      JSON.parse(localStorage.getItem("registeredUsers")) || [];
-    const userExists = existingUsers.find((user) => user.email === email);
+      setTimeout(() => navigate("/login"), 1500);
+    } catch (error) {
+      if (error.response) {
+        const status = error.response.status;
+        const message = error.response.data;
 
-    if (userExists) {
-      alert("User with this email already exists.");
-      return;
+        if (status === 409) {
+          setServerEmailError(message);
+        } else {
+          toast.error(message || "Registration failed.");
+        }
+      } else {
+        // alert("Something went wrong. Please try again.");
+        toast.error("Something went wrong. Please try again.");
+      }
     }
-
-    existingUsers.push(regCreds);
-    localStorage.setItem("registeredUsers", JSON.stringify(existingUsers));
-
-    setFullName("");
-    setEmail("");
-    setPassword("");
-    setConfirmPassword("");
-    setEmailError("");
-    setPasswordError("");
-    setConfirmPasswordError("");
-
-    navigate("/login");
   };
 
   const isFormValid =
@@ -107,6 +129,8 @@ const Register = () => {
     !confirmPasswordError;
 
   return (
+    <>
+    <ToastContainer position="top-right" autoClose={3000} />
     <div className="min-h-screen bg-cover bg-center flex items-center justify-center login-bg px-2 py-6 font-RobotoSlab">
       <div className="flex flex-col sm:flex-row-reverse rounded-3xl shadow-2xl overflow-hidden w-[90%] max-w-5xl bg-gradient-to-r from-[#004d8f] to-[#5cb4ff] h-fit sm:h-auto px-3 py-2">
         {/* Logo Section */}
@@ -156,7 +180,10 @@ const Register = () => {
                 type="email"
                 placeholder="Email*"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setServerEmailError(""); // Clear previous server error
+                }}
                 onBlur={validateEmail}
                 className="bg-transparent w-full outline-none ml-2"
               />
@@ -256,10 +283,16 @@ const Register = () => {
               onChange={(e) => setUserType(e.target.value)}
               className="w-full bg-gray-100 px-4 py-2 rounded-xl outline-2 outline-indigo-400/50"
             >
-              <option value="User">User</option>
-              <option value="Organizer">Organizer</option>
+              <option value="USER">User</option>
+              <option value="ORGANIZER">Organizer</option>
             </select>
           </div>
+          {/* Server-side Email Error Message */}
+          {serverEmailError && (
+            <p className="text-sm text-red-600 -mt-2 mb-4 text-center">
+              {serverEmailError}
+            </p>
+          )}
 
           {/* Submit Button */}
           <button
@@ -283,6 +316,7 @@ const Register = () => {
         </form>
       </div>
     </div>
+    </>
   );
 };
 
