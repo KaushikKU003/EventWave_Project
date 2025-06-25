@@ -54,16 +54,16 @@ const Login = () => {
       );
       // Extract user from response
       const { token, user } = response.data;
-      console.log(user.fullName);
       // Update context
       login({
         fullName: user.fullName,
         role: user.role,
         token: token,
       });
-
+      console.log(response.data);
+      
       // Show success toast
-      toast.success("Login successful!", {
+      toast.success(response.data.message, {
         position: "top-right",
         autoClose: 2000,
         theme: "colored",
