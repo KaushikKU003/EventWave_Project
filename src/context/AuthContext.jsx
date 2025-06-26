@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }) => {
   const [role, setRole] = useState(""); // "User" or "Organizer"
   const [userName, setUserName] = useState("");
   const [token, setToken] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (cookies.user && cookies.token) {
@@ -19,6 +20,7 @@ export const AuthProvider = ({ children }) => {
       setUserName(cookies.user.fullName);
       setToken(cookies.token);
     }
+    setLoading(false);
   }, [cookies]);
 
   // Login method (used in Login.jsx)
@@ -46,7 +48,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ isLoggedIn, role, userName, token, login, logout }}
+      value={{ isLoggedIn, role, userName, token, login, logout, loading }}
     >
       {children}
     </AuthContext.Provider>
