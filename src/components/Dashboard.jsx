@@ -1,6 +1,14 @@
-import React, { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaMicrophone, FaGuitar, FaFutbol, FaLaptopCode } from "react-icons/fa";
+import {
+  FaLaptopCode,
+  FaGuitar,
+  FaFutbol,
+  FaMicrophone,
+  FaHeartbeat,
+  FaBook,
+  FaPalette,
+} from "react-icons/fa";
 import EventCard from "./EventCard";
 import { AuthContext } from "../context/AuthContext";
 
@@ -88,18 +96,31 @@ const Dashboard = () => {
     music: <FaGuitar size={50} className="text-[#712681]" />,
     sports: <FaFutbol size={50} className="text-[#712681]" />,
     business: <FaMicrophone size={50} className="text-[#712681]" />,
+    health: <FaHeartbeat size={50} className="text-[#712681]" />,
+    education: <FaBook size={50} className="text-[#712681]" />,
+    art: <FaPalette size={50} className="text-[#712681]" />,
   };
 
   const pillColor = userType === "User" ? "bg-[#712681]" : "bg-[#ffb62a]";
-  const headingText =
-    userType === "User" ? "Your Registered Events" : "Your Upcoming Events";
 
   return (
     <div className="min-h-screen bg-white px-6 py-12 font-RobotoSlab">
-      <h2 className="text-4xl font-bold text-center text-[#712681] mb-12 drop-shadow">
-        {headingText}
-      </h2>
+      <div className="flex justify-between items-center max-w-6xl mx-auto mb-12">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#712681] drop-shadow">
+          {userType === "User"
+            ? "Your Registered Events"
+            : "Your Upcoming Events"}
+        </h2>
 
+        {userType !== "User" && (
+          <button
+            onClick={() => navigate("/eventcreation")}
+            className="bg-[#712681] text-white px-4 py-2 sm:px-6 sm:py-2.5 md:px-8 md:py-3 text-base sm:text-lg rounded-xl hover:bg-[#5e1c6a] transition"
+          >
+            Create New Event
+          </button>
+        )}
+      </div>
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
         {events.map((event, index) => (
           <EventCard

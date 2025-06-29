@@ -9,35 +9,44 @@ import ProtectedRoute from "./utils/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ProfilePage from "./components/ProfilePage";
+import EventCreationForm from "./components/EventCreationForm";
 
 function App() {
   return (
     <>
-    {/* ToastContainer should be outside Routes to remain mounted always */}
+      {/* ToastContainer should be outside Routes to remain mounted always */}
       <ToastContainer />
-    <Routes>
-      <Route path="/" element={<ResponsiveNavbar />}>
-        <Route index element={<Home />} />
-        <Route
-          path="dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="profile"
-          element={
-            <ProtectedRoute>
-              <ProfilePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="login" element={<Login />} />
-        <Route path="register" element={<Register />} />
-      </Route>
-    </Routes>
+      <Routes>
+        <Route path="/" element={<ResponsiveNavbar />}>
+          <Route index element={<Home />} />
+          <Route
+            path="dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="eventcreation"
+            element={
+              <ProtectedRoute>
+                <EventCreationForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
+        </Route>
+      </Routes>
     </>
   );
 }
