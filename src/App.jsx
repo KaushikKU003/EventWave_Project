@@ -10,11 +10,15 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ProfilePage from "./components/ProfilePage";
 import EventCreationForm from "./components/EventCreationForm";
+import EventList from "./components/EventList";
+import EventDetails from "./components/EventDetails";
+import { LoadScript } from "@react-google-maps/api";
 
 function App() {
   return (
     <>
       {/* ToastContainer should be outside Routes to remain mounted always */}
+      <LoadScript googleMapsApiKey="AIzaSyCG1rvj2o3dp5A-EqinFz-wzOg1usfIuYM">
       <ToastContainer />
       <Routes>
         <Route path="/" element={<ResponsiveNavbar />}>
@@ -45,8 +49,12 @@ function App() {
           />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
+
+          <Route path="events" element={<EventList/>}/>
+          <Route path="events/:id" element={<EventDetails/>}/>
         </Route>
       </Routes>
+      </LoadScript>
     </>
   );
 }

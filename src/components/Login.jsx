@@ -59,6 +59,7 @@ const Login = () => {
         fullName: user.fullName,
         role: user.role,
         token: token,
+        customer_username: user.username,
       });
       console.log(response.data);
       

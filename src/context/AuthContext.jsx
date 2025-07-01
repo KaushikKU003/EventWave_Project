@@ -10,6 +10,7 @@ export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState(""); // "User" or "Organizer"
   const [userName, setUserName] = useState("");
+  const [customerUserName, setCustomerUserName] = useState("");
   const [token, setToken] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -18,20 +19,22 @@ export const AuthProvider = ({ children }) => {
       setIsLoggedIn(true);
       setRole(cookies.user.role);
       setUserName(cookies.user.fullName);
+      setCustomerUserName(cookies.user.customer_username);
       setToken(cookies.token);
+      
     }
     setLoading(false);
   }, [cookies]);
 
   // Login method (used in Login.jsx)
-  const login = ({ fullName, role, token }) => {
+  const login = ({ fullName, role, token ,customer_username}) => {
     setIsLoggedIn(true);
     setRole(role);
     setUserName(fullName);
     setToken(token);
-
+    setCustomerUserName(customer_username)
     // Save to cookies
-    setCookie("user", { fullName, role }, { path: "/", maxAge: 86400 }); // 1 day
+    setCookie("user", { fullName, role ,customer_username }, { path: "/", maxAge: 86400 }); // 1 day
     setCookie("token", token, { path: "/", maxAge: 86400 }); // 1 day
   };
 
@@ -40,6 +43,7 @@ export const AuthProvider = ({ children }) => {
     setIsLoggedIn(false);
     setRole("");
     setUserName("");
+    setCustomerUserName("");
     setToken("");
 
     removeCookie("user");
@@ -48,7 +52,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ isLoggedIn, role, userName, token, login, logout, loading }}
+      value={{ isLoggedIn, role, userName,customerUserName, token, login, logout, loading }}
     >
       {children}
     </AuthContext.Provider>
