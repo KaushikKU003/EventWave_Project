@@ -21,6 +21,29 @@
   }
 }
 
+@keyframes slow-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.glass-bg {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  border-radius: 1rem;
+}
+
+
+.slow-spin {
+  animation: slow-spin 20s linear infinite;
+}
+
+
 .float-animation {
   animation: float 2s ease-in-out infinite;
 }
