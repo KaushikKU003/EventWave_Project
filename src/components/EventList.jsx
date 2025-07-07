@@ -32,43 +32,8 @@ const EventList = () => {
   const { token, role } = useContext(AuthContext);
 
   const debounceTimeout = useRef(null);
-
+  const hasAppliedUrlCategory = useRef(false);
   const location = useLocation();
-
-  // Category setting via URL
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const categoryFromUrl = params.get("category");
-
-    if (categoryFromUrl) {
-      setSelectedCategory(categoryFromUrl);
-      toast.info(`Category "${categoryFromUrl}" filter applied from URL.`, {
-        position: "top-right",
-        autoClose: 3000,
-        theme: "colored",
-      });
-    }
-  }, [location.search]);
-
-  // Fetching Location
-  useEffect(() => {
-    const fetchMetaData = async () => {
-      try {
-        const response = await axios.get(EVENTS_URL, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = response.data;
-        const locations = [
-          ...new Set(data.map((event) => event.location)),
-        ].sort((a, b) => a.localeCompare(b));
-        setLocations(locations);
-      } catch (error) {
-        console.error("Error fetching metadata:", error);
-      }
-    };
-
-    fetchMetaData();
-  }, [token]);
 
   // Fetching categories
   useEffect(() => {
@@ -91,6 +56,54 @@ const EventList = () => {
 
     fetchCategories();
   }, []);
+
+  // Category setting via URL
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const categoryFromUrl = params.get("category");
+
+    if (
+      categoryFromUrl &&
+      categoryMap[categoryFromUrl] &&
+      !hasAppliedUrlCategory.current
+    ) {
+      setSelectedCategory(categoryFromUrl);
+      toast.info(`Category "${categoryFromUrl}" filter applied from URL.`, {
+        position: "top-right",
+        autoClose: 3000,
+        theme: "colored",
+      });
+      fetchFilteredEvents({
+        keyword: searchQuery,
+        location: selectedLocation,
+        categoryId: categoryMap[categoryFromUrl],
+        startDate,
+        endDate,
+        onlyFavorites,
+      });
+      hasAppliedUrlCategory.current = true;
+    }
+  }, [location.search, categoryMap]);
+
+  // Fetching Location
+  useEffect(() => {
+    const fetchMetaData = async () => {
+      try {
+        const response = await axios.get(EVENTS_URL, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = response.data;
+        const locations = [
+          ...new Set(data.map((event) => event.location)),
+        ].sort((a, b) => a.localeCompare(b));
+        setLocations(locations);
+      } catch (error) {
+        console.error("Error fetching metadata:", error);
+      }
+    };
+
+    fetchMetaData();
+  }, [token]);
 
   const fetchFilteredEvents = async ({
     keyword,
