@@ -7,6 +7,11 @@ import { ThreeDot } from "react-loading-indicators";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
+const MY_EVENT_URL = `${BASE_URL}/api/events/my-events`;
+const FAVORITE_ADD_URL = `${BASE_URL}/api/favorites/add`;
+const FAVORITE_REMOVE_URL = `${BASE_URL}/api/favorites/remove`;
+
 const Dashboard = () => {
   const {
     role: userType,
@@ -15,6 +20,7 @@ const Dashboard = () => {
     token,
   } = useContext(AuthContext);
   const [events, setEvents] = useState([]);
+  const [eventsLoading, setEventsLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,16 +31,18 @@ const Dashboard = () => {
 
   const fetchEvents = async () => {
     try {
-      const response = await axios.get(
-        "https://backend-eventwave-production.up.railway.app/api/events/my-events",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      setEventsLoading(true);
+      const response = await axios.get(MY_EVENT_URL, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setEvents(response.data);
     } catch (err) {
       console.error("Error fetching events:", err);
       if (err.response && err.response.status === 401) {
         navigate("/login");
       }
+    } finally {
+      setEventsLoading(false);
     }
   };
 
@@ -55,19 +63,16 @@ const Dashboard = () => {
 
     try {
       if (isFavorite) {
-        await axios.delete(
-          `https://backend-eventwave-production.up.railway.app/api/favorites/remove/${eventId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        await axios.delete(`${FAVORITE_REMOVE_URL}/${eventId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
       } else {
         await axios.post(
-          `https://backend-eventwave-production.up.railway.app/api/favorites/add/${eventId}`,
+          `${FAVORITE_ADD_URL}/${eventId}`,
           {},
           { headers: { Authorization: `Bearer ${token}` } }
         );
       }
-
-      // ✅ Refetch events from backend to sync correct favorite state
       await fetchEvents();
     } catch (error) {
       console.error("Error toggling favorite:", error);
@@ -82,7 +87,9 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="text-center py-12 text-xl">Loading Dashboard...</div>
+      <div className="flex items-center justify-center h-screen">
+        <ThreeDot size={30} color="#712681" />
+      </div>
     );
   }
 
@@ -105,18 +112,28 @@ const Dashboard = () => {
         )}
       </div>
 
-      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
-        {events.map((event) => (
-          <EventCard
-            key={event.id}
-            event={event}
-            onFavoriteToggle={() =>
-              handleFavoriteToggle(event.id, event.favorite)
-            }
-            buttonColor={buttonColor}
-          />
-        ))}
-      </div>
+      {eventsLoading ? (
+        <div className="flex items-center justify-center h-screen">
+          <ThreeDot size={30} color="#712681" />
+        </div>
+      ) : events.length === 0 ? (
+        <div className="text-center text-gray-500 text-lg py-16">
+          No upcoming events.
+        </div>
+      ) : (
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
+          {events.map((event) => (
+            <EventCard
+              key={event.id}
+              event={event}
+              onFavoriteToggle={() =>
+                handleFavoriteToggle(event.id, event.favorite)
+              }
+              buttonColor={buttonColor}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

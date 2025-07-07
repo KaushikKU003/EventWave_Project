@@ -9,6 +9,11 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
+const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
+const CATEGORY_URL = `${BASE_URL}/api/categories`;
+const CREATION_URL = `${BASE_URL}/api/events/create`;
 
 const EventCreationForm = () => {
   const [form, setForm] = useState({
@@ -33,17 +38,13 @@ const EventCreationForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const navigate = useNavigate();
   const { token } = useContext(AuthContext);
-
   const today = dayjs();
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch(
-          "https://backend-eventwave-production.up.railway.app/api/categories"
-        );
-        const data = await response.json();
-        setCategories(data);
+        const response = await axios.get(CATEGORY_URL);
+        setCategories(response.data);
       } catch (err) {
         console.error("Error fetching categories:", err);
       }
@@ -97,45 +98,32 @@ const EventCreationForm = () => {
         return;
       }
     }
-    console.log([...formDataToSend.entries()]);
+    // console.log([...formDataToSend.entries()]);
     try {
-      const response = await fetch(
-        "https://backend-eventwave-production.up.railway.app/api/events/create",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formDataToSend,
-        }
-      );
-
-      const result = await response.json();
-
-      if (response.ok) {
-        toast.success("🎉 Event created successfully!", {
-          position: "top-right",
-          autoClose: 3000,
-          theme: "colored",
-        });
-        console.log(result);
-        navigate("/dashboard");
-      } else {
-        console.error("Server error:", result);
-        toast.error("Failed to create event: " + result.message, {
-          position: "top-right",
-          autoClose: 3000,
-          theme: "colored",
-        });
-        navigate("/dashboard");
-      }
-    } catch (error) {
-      console.error("Network error:", error);
-      toast.error("An error occurred while creating the event.", {
+      const response = await axios.post(CREATION_URL, formDataToSend, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // const result = response.data;
+      toast.success("🎉 Event created successfully!", {
         position: "top-right",
         autoClose: 3000,
         theme: "colored",
       });
+      // console.log(result);
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Server error:", error.response?.data || error.message);
+      toast.error(
+        "Failed to create event: " +
+          (error.response?.data?.message || error.message),
+        {
+          position: "top-right",
+          autoClose: 3000,
+          theme: "colored",
+        }
+      );
       navigate("/dashboard");
     }
   };

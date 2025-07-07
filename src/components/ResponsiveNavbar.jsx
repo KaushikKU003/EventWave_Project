@@ -1,11 +1,10 @@
-import React, { useState, useContext } from "react";
+import { useState, useContext } from "react";
 import { AiOutlineClose, AiOutlineMenu } from "react-icons/ai";
 import { NavLink, Outlet } from "react-router-dom";
 import Logo from "../Images/Logo_PNG.png";
 import { FaUserCircle } from "react-icons/fa";
 import { AuthContext } from "../context/AuthContext";
-
-import { ToastContainer, toast, Bounce } from "react-toastify";
+import { toast, Bounce } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const ResponsiveNavbar = () => {

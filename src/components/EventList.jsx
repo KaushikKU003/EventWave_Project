@@ -185,7 +185,7 @@ const EventList = () => {
     if (!token) {
       toast.warn(`Please login to favorite events.`, {
         position: "top-right",
-        autoClose: 2500,
+        autoClose: 3000,
         theme: "colored",
       });
       return;
