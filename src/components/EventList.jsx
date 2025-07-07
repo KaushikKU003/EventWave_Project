@@ -29,7 +29,7 @@ const EventList = () => {
   const [onlyFavorites, setOnlyFavorites] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [categoryMap, setCategoryMap] = useState({});
-  const { token, role: userType } = useContext(AuthContext);
+  const { token, role } = useContext(AuthContext);
 
   const debounceTimeout = useRef(null);
 
@@ -333,23 +333,25 @@ const EventList = () => {
           </div>
 
           {/* Favorites Filter */}
-          <div>
-            <label className="flex items-center justify-between cursor-pointer">
-              <span className="text-gray-800 font-medium">
-                Show only favorites
-              </span>
-              <div className="relative">
-                <input
-                  type="checkbox"
-                  checked={onlyFavorites}
-                  onChange={() => setOnlyFavorites(!onlyFavorites)}
-                  className="sr-only peer"
-                />
-                <div className="w-12 h-6 bg-gray-300 rounded-full peer-checked:bg-[#9030a5] transition"></div>
-                <div className="absolute top-0 left-0 w-6 h-6 bg-white border-none rounded-full shadow transform peer-checked:translate-x-6 transition"></div>
-              </div>
-            </label>
-          </div>
+          {role !== "ORGANIZER" && (
+            <div>
+              <label className="flex items-center justify-between cursor-pointer">
+                <span className="text-gray-800 font-medium">
+                  Show only favorites
+                </span>
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    checked={onlyFavorites}
+                    onChange={() => setOnlyFavorites(!onlyFavorites)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-12 h-6 bg-gray-300 rounded-full peer-checked:bg-[#9030a5] transition"></div>
+                  <div className="absolute top-0 left-0 w-6 h-6 bg-white border-none rounded-full shadow transform peer-checked:translate-x-6 transition"></div>
+                </div>
+              </label>
+            </div>
+          )}
 
           {/* Clear Filter Button */}
           <div className="flex justify-end">
