@@ -15,10 +15,11 @@ import EventDetails from "./components/EventDetails";
 import { LoadScript } from "@react-google-maps/api";
 
 function App() {
+  const API_KEY = import.meta.env.VITE_GMAP_API_KEY
   return (
     <>
       {/* ToastContainer should be outside Routes to remain mounted always */}
-      <LoadScript googleMapsApiKey="AIzaSyCG1rvj2o3dp5A-EqinFz-wzOg1usfIuYM">
+      <LoadScript googleMapsApiKey={API_KEY}>
       <ToastContainer />
       <Routes>
         <Route path="/" element={<ResponsiveNavbar />}>
