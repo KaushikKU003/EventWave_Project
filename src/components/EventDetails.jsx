@@ -4,6 +4,7 @@ import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import { ToastContainer, toast, Zoom, Bounce } from "react-toastify";
 import GoogleMapBox from "../utils/GoogleMapBox";
+import EditEventModal from "../utils/EditEventModal";
 
 import { FaCalendarDay, FaRegHeart, FaHeart } from "react-icons/fa";
 import { IoIosClock } from "react-icons/io";
@@ -42,6 +43,7 @@ const EventDetails = () => {
   });
 
   const [showModal, setShowModal] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
   const navigate = useNavigate();
@@ -186,9 +188,7 @@ const EventDetails = () => {
     );
 
   const handleEditClick = () => {
-    // navigate or open edit modal
-
-    alert("Edit button clicked");
+    setEditModalOpen(true);
   };
 
   const handleDeleteClick = () => {
@@ -372,6 +372,25 @@ const EventDetails = () => {
                   eventId={event.id}
                   token={token}
                   onClose={() => setShowModal(false)}
+                />
+              )}
+              {editModalOpen && (
+                <EditEventModal
+                  event={event}
+                  token={token}
+                  onClose={() => setEditModalOpen(false)}
+                  onUpdate={() => {
+                    axios
+                      .get(`${BASE_URL}/api/events/${id}`, {
+                        headers: token
+                          ? { Authorization: `Bearer ${token}` }
+                          : {},
+                      })
+                      .then((res) => setEvent(res.data))
+                      .catch((err) =>
+                        console.error("Failed to refresh event:", err)
+                      );
+                  }}
                 />
               )}
             </>
