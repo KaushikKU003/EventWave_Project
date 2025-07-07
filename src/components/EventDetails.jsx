@@ -16,6 +16,13 @@ import {
   RiDeleteBin6Line,
 } from "react-icons/ri";
 
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
+
 import { ThreeDot } from "react-loading-indicators";
 
 import ParticipantModal from "../utils/ParticipantModal";
@@ -27,6 +34,13 @@ const EventDetails = () => {
   const [registered, setRegistered] = useState(null);
   const [isFavorite, setIsFavorite] = useState(null);
   const [availableSeats, setAvailableSeats] = useState(null);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [dialogConfig, setDialogConfig] = useState({
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
+
   const [showModal, setShowModal] = useState(false);
 
   const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
@@ -177,27 +191,30 @@ const EventDetails = () => {
     alert("Edit button clicked");
   };
 
-  const handleDeleteClick = async () => {
-    const confirm = window.confirm(
-      "Are you sure you want to delete this event?"
-    );
-    if (confirm) {
-      try {
-        const response = await axios.delete(
-          `${BASE_URL}/api/events/delete/${id}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        toast.success(response.data.message, { autoClose: 2000 });
-        navigate("/events");
-      } catch (error) {
-        console.error(error.message);
-        toast.error("Failed to delete event. Please try again.", {
-          autoClose: 2000,
-        });
-      }
-    }
+  const handleDeleteClick = () => {
+    setDialogConfig({
+      title: "Confirm Deletion",
+      message:
+        "Are you sure you want to delete this event? This action cannot be undone.",
+      onConfirm: async () => {
+        try {
+          const response = await axios.delete(
+            `${BASE_URL}/api/events/delete/${id}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+          toast.success(response.data.message, { autoClose: 2000 });
+          navigate("/events");
+        } catch (error) {
+          console.error(error.message);
+          toast.error("Failed to delete event. Please try again.", {
+            autoClose: 2000,
+          });
+        }
+      },
+    });
+    setConfirmDialogOpen(true);
   };
 
   const formatTime12Hour = (timeStr) => {
@@ -269,9 +286,17 @@ const EventDetails = () => {
               <button
                 onClick={
                   registered
-                    ? handleUnregisterClick
+                    ? () => {
+                        setDialogConfig({
+                          title: "Confirm Unregistration",
+                          message:
+                            "Are you sure you want to unregister from this event?",
+                          onConfirm: handleUnregisterClick,
+                        });
+                        setConfirmDialogOpen(true);
+                      }
                     : availableSeats === 0
-                    ? null // disable if no seats
+                    ? () => {}
                     : handleRegisterClick
                 }
                 disabled={availableSeats === 0 && !registered}
@@ -362,14 +387,16 @@ const EventDetails = () => {
               <span className="font-semibold flex items-center gap-1">
                 <FaCalendarDay size={20} /> Date:
               </span>
-               {event.date.split("-").reverse().join("-")}
+              {event.date.split("-").reverse().join("-")}
             </p>
 
             <p className="flex items-center gap-2">
               <span className="font-semibold flex items-center gap-1">
                 <IoIosClock size={20} /> Time:
               </span>
-              {`${formatTime12Hour(event.startTime)} - ${formatTime12Hour(event.endTime)}`}
+              {`${formatTime12Hour(event.startTime)} - ${formatTime12Hour(
+                event.endTime
+              )}`}
             </p>
 
             <p className="flex items-start gap-2">
@@ -419,6 +446,30 @@ const EventDetails = () => {
           )}
         </div>
       </div>
+      <Dialog
+        open={confirmDialogOpen}
+        onClose={() => setConfirmDialogOpen(false)}
+      >
+        <DialogTitle>{dialogConfig.title}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{dialogConfig.message}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDialogOpen(false)} color="primary">
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              setConfirmDialogOpen(false);
+              dialogConfig.onConfirm();
+            }}
+            color="error"
+            variant="contained"
+          >
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
