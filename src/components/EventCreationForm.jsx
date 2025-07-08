@@ -10,6 +10,10 @@ import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
+const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
+const CATEGORY_URL = `${BASE_URL}/api/categories`;
+const CREATION_URL = `${BASE_URL}/api/events/create`;
+
 const EventCreationForm = () => {
   const [form, setForm] = useState({
     title: "",
@@ -39,9 +43,7 @@ const EventCreationForm = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch(
-          "https://backend-eventwave-production.up.railway.app/api/categories"
-        );
+        const response = await fetch(CATEGORY_URL);
         const data = await response.json();
         setCategories(data);
       } catch (err) {
@@ -62,6 +64,12 @@ const EventCreationForm = () => {
       setPreviewUrl("");
     }
   }, [form.imageFile, form.imageUrl]);
+
+  const isEndTimeValid = (start, end) => {
+    const startTime = dayjs(start, "HH:mm");
+    const endTime = dayjs(end, "HH:mm");
+    return !(start && end && endTime.isBefore(startTime));
+  };
 
   const handleSubmit = async (e) => {
     e?.preventDefault();
@@ -89,26 +97,26 @@ const EventCreationForm = () => {
         formDataToSend.append("image", file);
       } catch (err) {
         console.error("Failed to fetch image from URL", err);
-        toast.error("Invalid image URL", {
-          position: "top-right",
-          autoClose: 3000,
-          theme: "colored",
-        });
+        toast.error(
+          "Invalid Image URL. Please go back to 'Image Details' (Step 3) and change it.",
+          {
+            position: "top-right",
+            autoClose: 3000,
+            theme: "colored",
+          }
+        );
         return;
       }
     }
-    console.log([...formDataToSend.entries()]);
+    // console.log([...formDataToSend.entries()]);
     try {
-      const response = await fetch(
-        "https://backend-eventwave-production.up.railway.app/api/events/create",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formDataToSend,
-        }
-      );
+      const response = await fetch(CREATION_URL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formDataToSend,
+      });
 
       const result = await response.json();
 
@@ -118,7 +126,7 @@ const EventCreationForm = () => {
           autoClose: 3000,
           theme: "colored",
         });
-        console.log(result);
+        // console.log(result);
         navigate("/dashboard");
       } else {
         console.error("Server error:", result);
@@ -156,14 +164,17 @@ const EventCreationForm = () => {
 
   const isStepValid = () => {
     if (currentStep === 1) {
-      return (
-        form.title.trim() &&
-        form.description.trim() &&
-        form.category &&
-        form.date &&
-        form.startTime &&
-        form.endTime
-      );
+      if (
+        !form.title.trim() ||
+        !form.description.trim() ||
+        !form.category ||
+        !form.date ||
+        !form.startTime ||
+        !form.endTime
+      ) {
+        return false;
+      }
+      return isEndTimeValid(form.startTime, form.endTime);
     }
 
     if (currentStep === 2) {
@@ -255,12 +266,23 @@ const EventCreationForm = () => {
                 name="startTime"
                 label="Start Time"
                 value={form.startTime ? dayjs(form.startTime, "HH:mm") : null}
-                onChange={(newValue) =>
+                onChange={(newValue) => {
+                  const newStartTime = newValue ? newValue.format("HH:mm") : "";
                   setForm((prev) => ({
                     ...prev,
-                    startTime: newValue ? newValue.format("HH:mm") : "",
-                  }))
-                }
+                    startTime: newStartTime,
+                  }));
+                  if (
+                    form.endTime &&
+                    !isEndTimeValid(newStartTime, form.endTime)
+                  ) {
+                    toast.warn("End time must be after start time", {
+                      position: "top-right",
+                      autoClose: 3000,
+                      theme: "colored",
+                    });
+                  }
+                }}
                 className="w-full rounded bg-white"
               />
             </div>
@@ -270,16 +292,15 @@ const EventCreationForm = () => {
                 label="End Time"
                 value={form.endTime ? dayjs(form.endTime, "HH:mm") : null}
                 onChange={(newValue) => {
+                  const newEndTime = newValue ? newValue.format("HH:mm") : "";
                   setForm((prev) => ({
                     ...prev,
-                    endTime: newValue ? newValue.format("HH:mm") : "",
+                    endTime: newEndTime,
                   }));
-                }}
-                onAccept={(newValue) => {
-                  const start = dayjs(form.startTime, "HH:mm");
-                  const end = dayjs(newValue, "HH:mm");
-
-                  if (newValue && start.isValid() && end.isBefore(start)) {
+                  if (
+                    form.startTime &&
+                    !isEndTimeValid(form.startTime, newEndTime)
+                  ) {
                     toast.warn("End time must be after start time", {
                       position: "top-right",
                       autoClose: 3000,

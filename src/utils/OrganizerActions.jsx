@@ -1,27 +1,38 @@
 import React from "react";
 import { FaPeopleGroup } from "react-icons/fa6";
-import { RiFileEditFill, RiDeleteBin6Line,RiFeedbackFill } from "react-icons/ri";
+import {
+  RiFileEditFill,
+  RiDeleteBin6Line,
+  RiFeedbackFill,
+} from "react-icons/ri";
 
 import { useContext } from "react";
-import ParticipantModal from "../utils/ParticipantModal"; 
+import ParticipantModal from "../utils/ParticipantModal";
 import { AuthContext } from "../context/AuthContext";
+import EditEventModal from "../utils/EditEventModal";
+import axios from "axios";
+
+const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 const OrganizerActions = ({
   event,
+  setEvent,
   handleDeleteClick,
   showModal,
   setShowModal,
+  editModalOpen,
+  setEditModalOpen,
 }) => {
   const hasEventPassed = new Date(event.date) < new Date();
   // const hasEventPassed = true;
   const { token } = useContext(AuthContext);
 
   const handleEditClick = () => {
-    alert("Edit");
+    setEditModalOpen(true);
   };
   const handleFeedback = () => {
     alert("Feedback");
-  }
+  };
   return (
     <>
       <hr className="my-8 border border-blueGray-300" />
@@ -70,6 +81,21 @@ const OrganizerActions = ({
           eventId={event.id}
           token={token}
           onClose={() => setShowModal(false)}
+        />
+      )}
+      {editModalOpen && (
+        <EditEventModal
+          event={event}
+          token={token}
+          onClose={() => setEditModalOpen(false)}
+          onUpdate={() => {
+            axios
+              .get(`${BASE_URL}/api/events/${event.id}`, {
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+              })
+              .then((res) => setEvent(res.data))
+              .catch((err) => console.error("Failed to refresh event:", err));
+          }}
         />
       )}
     </>

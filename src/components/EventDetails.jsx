@@ -40,6 +40,7 @@ const EventDetails = () => {
   });
 
   const [showModal, setShowModal] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
   const navigate = useNavigate();
@@ -177,8 +178,6 @@ const EventDetails = () => {
         </div>
       </div>
     );
-
-
   const handleDeleteClick = () => {
     setDialogConfig({
       title: "Confirm Deletion",
@@ -263,8 +262,11 @@ const EventDetails = () => {
           </h1>
 
           <div className="flex flex-col items-start sm:items-end gap-2">
-            {availableSeats !== null && new Date(event.date) >= new Date() &&
-              (role === "USER" || (role === "ORGANIZER" && customerUserName === event.organizer?.username)) && (
+            {availableSeats !== null &&
+              new Date(event.date) >= new Date() &&
+              (role === "USER" ||
+                (role === "ORGANIZER" &&
+                  customerUserName === event.organizer?.username)) && (
                 <p className="text-sm text-red-600 font-medium">
                   {availableSeats} seats available out of {event.capacity}
                 </p>
@@ -332,10 +334,13 @@ const EventDetails = () => {
           customerUserName === event.organizer?.username && (
             <OrganizerActions
               event={event}
+              setEvent={setEvent}
               token={token}
               handleDeleteClick={handleDeleteClick}
               showModal={showModal}
               setShowModal={setShowModal}
+              editModalOpen={editModalOpen}
+              setEditModalOpen={setEditModalOpen}
             />
           )}
 
