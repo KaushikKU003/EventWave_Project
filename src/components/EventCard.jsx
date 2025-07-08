@@ -65,7 +65,10 @@ const EventCard = ({
           {event.description}
         </p>
         <p className="text-sm text-gray-600">📌 {event.location}</p>
-        <p className="text-sm text-gray-600">📆 {event.date}</p>
+        <p className="text-sm text-gray-600">
+          📆
+          {new Date(event.date).toLocaleDateString("en-GB").replace(/\//g, "-")}
+        </p>
         <p className="text-sm text-gray-600">
           🪑 {event.availableSeats} seats available
         </p>

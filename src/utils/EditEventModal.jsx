@@ -165,7 +165,12 @@ const EditEventModal = ({ event, token, onClose, onUpdate }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/30 backdrop-blur-md backdrop-saturate-150 p-4">
       <div className="max-h-screen overflow-y-auto ">
-        <div className="bg-[#e9cbf0] rounded-2xl p-6 w-full max-w-3xl shadow-2xl border border-gray-300 font-RobotoSlab">
+        <div
+          className="rounded-2xl p-6 w-full max-w-3xl shadow-2xl border border-gray-300 font-RobotoSlab"
+          style={{
+            background: "linear-gradient(135deg, #ffe7b9 0%, #ffffff 100%)",
+          }}
+        >
           <h2 className="text-2xl font-bold text-[#5e1c6a] mb-6 text-center">
             Edit Event
           </h2>
