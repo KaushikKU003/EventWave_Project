@@ -4,18 +4,17 @@ import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import { ToastContainer, toast, Zoom, Bounce } from "react-toastify";
 import GoogleMapBox from "../utils/GoogleMapBox";
+import OrganizerActions from "../utils/OrganizerActions";
 
+//icons
 import { FaCalendarDay, FaRegHeart, FaHeart } from "react-icons/fa";
 import { IoIosClock } from "react-icons/io";
 import { FaMapLocationDot, FaUserGroup, FaPeopleGroup } from "react-icons/fa6";
 import { BiSolidCategoryAlt } from "react-icons/bi";
 import { PiChairFill } from "react-icons/pi";
-import {
-  RiMoneyRupeeCircleFill,
-  RiFileEditFill,
-  RiDeleteBin6Line,
-} from "react-icons/ri";
+import { RiMoneyRupeeCircleFill } from "react-icons/ri";
 
+//MUI imports
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -23,9 +22,8 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 
+//loader
 import { ThreeDot } from "react-loading-indicators";
-
-import ParticipantModal from "../utils/ParticipantModal";
 
 const EventDetails = () => {
   const { id } = useParams();
@@ -171,11 +169,6 @@ const EventDetails = () => {
     }
   };
 
-  // const handleParicipantListClick = () => {
-  //   //add api here
-  //   toast.info("Clicked on Registration and Participant List");
-  // };
-
   if (!event)
     return (
       <div className="flex items-center justify-center h-screen">
@@ -185,11 +178,6 @@ const EventDetails = () => {
       </div>
     );
 
-  const handleEditClick = () => {
-    // navigate or open edit modal
-
-    alert("Edit button clicked");
-  };
 
   const handleDeleteClick = () => {
     setDialogConfig({
@@ -275,11 +263,12 @@ const EventDetails = () => {
           </h1>
 
           <div className="flex flex-col items-start sm:items-end gap-2">
-            {availableSeats !== null && (
-              <p className="text-sm text-red-600 font-medium">
-                {availableSeats} seats available out of {event.capacity}
-              </p>
-            )}
+            {availableSeats !== null && new Date(event.date) >= new Date() &&
+              (role === "USER" || (role === "ORGANIZER" && customerUserName === event.organizer?.username)) && (
+                <p className="text-sm text-red-600 font-medium">
+                  {availableSeats} seats available out of {event.capacity}
+                </p>
+              )}
 
             {/* Register button for USER and unauthenticated */}
             {(!token || role === "USER") && (
@@ -299,7 +288,10 @@ const EventDetails = () => {
                     ? () => {}
                     : handleRegisterClick
                 }
-                disabled={availableSeats === 0 && !registered}
+                disabled={
+                  (availableSeats === 0 || new Date(event.date) < new Date()) &&
+                  !registered
+                }
                 className={`w-full sm:w-auto px-4 py-2 text-white text-lg font-semibold rounded-full shadow transition duration-300 hover:scale-95 hover:cursor-pointer ${
                   registered
                     ? "bg-red-500 hover:bg-red-600"
@@ -310,7 +302,7 @@ const EventDetails = () => {
               >
                 {registered
                   ? "Unregister"
-                  : availableSeats === 0
+                  : availableSeats === 0 || new Date(event.date) < new Date()
                   ? "Registration Closed"
                   : "Register"}
               </button>
@@ -338,43 +330,13 @@ const EventDetails = () => {
         {token &&
           role === "ORGANIZER" &&
           customerUserName === event.organizer?.username && (
-            <>
-              <hr className="my-8 border border-blueGray-300" />
-
-              <div className="flex flex-wrap gap-3 mb-6 justify-evenly">
-                <button
-                  onClick={() => setShowModal(true)}
-                  className="px-4 py-2 text-indigo-950 text-sm font-semibold rounded-full shadow bg-[#ec9b00] hover:bg-[#ffaf16] transition duration-300 hover:scale-95 hover:cursor-pointer flex items-center gap-1"
-                >
-                  <FaPeopleGroup size={28} />
-                  View Participants
-                </button>
-
-                <button
-                  onClick={handleEditClick}
-                  className="px-4 py-2 text-white text-sm font-semibold rounded-full shadow bg-blue-600 hover:bg-blue-700 transition duration-300 hover:scale-95 hover:cursor-pointer flex items-center gap-1"
-                >
-                  <RiFileEditFill size={24} />
-                  Edit Event
-                </button>
-
-                <button
-                  onClick={handleDeleteClick}
-                  className="px-4 py-2 text-white text-sm font-semibold rounded-full shadow bg-red-600 hover:bg-red-700 transition duration-300 hover:scale-95 hover:cursor-pointer flex items-center gap-1"
-                >
-                  <RiDeleteBin6Line size={24} />
-                  Delete Event
-                </button>
-              </div>
-
-              {showModal && (
-                <ParticipantModal
-                  eventId={event.id}
-                  token={token}
-                  onClose={() => setShowModal(false)}
-                />
-              )}
-            </>
+            <OrganizerActions
+              event={event}
+              token={token}
+              handleDeleteClick={handleDeleteClick}
+              showModal={showModal}
+              setShowModal={setShowModal}
+            />
           )}
 
         <hr className="my-8 border border-blueGray-300" />
@@ -446,6 +408,7 @@ const EventDetails = () => {
           )}
         </div>
       </div>
+
       <Dialog
         open={confirmDialogOpen}
         onClose={() => setConfirmDialogOpen(false)}
