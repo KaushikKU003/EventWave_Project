@@ -178,7 +178,6 @@ const EventDetails = () => {
         </div>
       </div>
     );
-
   const handleDeleteClick = () => {
     setDialogConfig({
       title: "Confirm Deletion",
