@@ -9,7 +9,6 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 const CATEGORY_URL = `${BASE_URL}/api/categories`;
@@ -38,13 +37,15 @@ const EventCreationForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const navigate = useNavigate();
   const { token } = useContext(AuthContext);
+
   const today = dayjs();
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get(CATEGORY_URL);
-        setCategories(response.data);
+        const response = await fetch(CATEGORY_URL);
+        const data = await response.json();
+        setCategories(data);
       } catch (err) {
         console.error("Error fetching categories:", err);
       }
@@ -63,6 +64,12 @@ const EventCreationForm = () => {
       setPreviewUrl("");
     }
   }, [form.imageFile, form.imageUrl]);
+
+  const isEndTimeValid = (start, end) => {
+    const startTime = dayjs(start, "HH:mm");
+    const endTime = dayjs(end, "HH:mm");
+    return !(start && end && endTime.isBefore(startTime));
+  };
 
   const handleSubmit = async (e) => {
     e?.preventDefault();
@@ -90,40 +97,53 @@ const EventCreationForm = () => {
         formDataToSend.append("image", file);
       } catch (err) {
         console.error("Failed to fetch image from URL", err);
-        toast.error("Invalid image URL", {
-          position: "top-right",
-          autoClose: 3000,
-          theme: "colored",
-        });
+        toast.error(
+          "Invalid Image URL. Please go back to 'Image Details' (Step 3) and change it.",
+          {
+            position: "top-right",
+            autoClose: 3000,
+            theme: "colored",
+          }
+        );
         return;
       }
     }
     // console.log([...formDataToSend.entries()]);
     try {
-      const response = await axios.post(CREATION_URL, formDataToSend, {
+      const response = await fetch(CREATION_URL, {
+        method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        body: formDataToSend,
       });
-      // const result = response.data;
-      toast.success("🎉 Event created successfully!", {
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success("🎉 Event created successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+          theme: "colored",
+        });
+        // console.log(result);
+        navigate("/dashboard");
+      } else {
+        console.error("Server error:", result);
+        toast.error("Failed to create event: " + result.message, {
+          position: "top-right",
+          autoClose: 3000,
+          theme: "colored",
+        });
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error("Network error:", error);
+      toast.error("An error occurred while creating the event.", {
         position: "top-right",
         autoClose: 3000,
         theme: "colored",
       });
-      // console.log(result);
-      navigate("/dashboard");
-    } catch (error) {
-      console.error("Server error:", error.response?.data || error.message);
-      toast.error(
-        "Failed to create event: " +
-          (error.response?.data?.message || error.message),
-        {
-          position: "top-right",
-          autoClose: 3000,
-          theme: "colored",
-        }
-      );
       navigate("/dashboard");
     }
   };
@@ -144,14 +164,17 @@ const EventCreationForm = () => {
 
   const isStepValid = () => {
     if (currentStep === 1) {
-      return (
-        form.title.trim() &&
-        form.description.trim() &&
-        form.category &&
-        form.date &&
-        form.startTime &&
-        form.endTime
-      );
+      if (
+        !form.title.trim() ||
+        !form.description.trim() ||
+        !form.category ||
+        !form.date ||
+        !form.startTime ||
+        !form.endTime
+      ) {
+        return false;
+      }
+      return isEndTimeValid(form.startTime, form.endTime);
     }
 
     if (currentStep === 2) {
@@ -243,12 +266,23 @@ const EventCreationForm = () => {
                 name="startTime"
                 label="Start Time"
                 value={form.startTime ? dayjs(form.startTime, "HH:mm") : null}
-                onChange={(newValue) =>
+                onChange={(newValue) => {
+                  const newStartTime = newValue ? newValue.format("HH:mm") : "";
                   setForm((prev) => ({
                     ...prev,
-                    startTime: newValue ? newValue.format("HH:mm") : "",
-                  }))
-                }
+                    startTime: newStartTime,
+                  }));
+                  if (
+                    form.endTime &&
+                    !isEndTimeValid(newStartTime, form.endTime)
+                  ) {
+                    toast.warn("End time must be after start time", {
+                      position: "top-right",
+                      autoClose: 3000,
+                      theme: "colored",
+                    });
+                  }
+                }}
                 className="w-full rounded bg-white"
               />
             </div>
@@ -258,16 +292,15 @@ const EventCreationForm = () => {
                 label="End Time"
                 value={form.endTime ? dayjs(form.endTime, "HH:mm") : null}
                 onChange={(newValue) => {
+                  const newEndTime = newValue ? newValue.format("HH:mm") : "";
                   setForm((prev) => ({
                     ...prev,
-                    endTime: newValue ? newValue.format("HH:mm") : "",
+                    endTime: newEndTime,
                   }));
-                }}
-                onAccept={(newValue) => {
-                  const start = dayjs(form.startTime, "HH:mm");
-                  const end = dayjs(newValue, "HH:mm");
-
-                  if (newValue && start.isValid() && end.isBefore(start)) {
+                  if (
+                    form.startTime &&
+                    !isEndTimeValid(form.startTime, newEndTime)
+                  ) {
                     toast.warn("End time must be after start time", {
                       position: "top-right",
                       autoClose: 3000,
