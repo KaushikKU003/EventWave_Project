@@ -38,6 +38,7 @@ const EventDetails = () => {
     message: "",
     onConfirm: () => {},
   });
+  const [hasEventPassed, setHasEventPassed] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -66,6 +67,14 @@ const EventDetails = () => {
 
     fetchEvent();
   }, [id, token, BASE_URL]);
+
+  useEffect(() => {
+    if (event?.date && event?.startTime) {
+      const eventDateTime = new Date(`${event.date}T${event.startTime}`);
+      const now = new Date();
+      setHasEventPassed(eventDateTime < now);
+    }
+  }, [event]);
 
   const handleRegisterClick = async () => {
     if (!token) {
@@ -263,7 +272,7 @@ const EventDetails = () => {
 
           <div className="flex flex-col items-start sm:items-end gap-2">
             {availableSeats !== null &&
-              new Date(event.date) >= new Date() &&
+              !hasEventPassed &&
               (role === "USER" ||
                 (role === "ORGANIZER" &&
                   customerUserName === event.organizer?.username)) && (
@@ -273,42 +282,44 @@ const EventDetails = () => {
               )}
 
             {/* Register button for USER and unauthenticated */}
-            {(!token || role === "USER") && (
-              <button
-                onClick={
-                  registered
-                    ? () => {
-                        setDialogConfig({
-                          title: "Confirm Unregistration",
-                          message:
-                            "Are you sure you want to unregister from this event?",
-                          onConfirm: handleUnregisterClick,
-                        });
-                        setConfirmDialogOpen(true);
-                      }
+            {(!token || role === "USER") &&
+              (hasEventPassed ? (
+                <p className="text-white text-lg font-semibold bg-red-600 px-4 py-2 rounded-full ">
+                  Event Completed
+                </p>
+              ) : (
+                <button
+                  onClick={
+                    registered
+                      ? () => {
+                          setDialogConfig({
+                            title: "Confirm Unregistration",
+                            message:
+                              "Are you sure you want to unregister from this event?",
+                            onConfirm: handleUnregisterClick,
+                          });
+                          setConfirmDialogOpen(true);
+                        }
+                      : availableSeats === 0
+                      ? () => {}
+                      : handleRegisterClick
+                  }
+                  disabled={availableSeats === 0 && !registered}
+                  className={`w-full sm:w-auto px-4 py-2 text-white text-lg font-semibold rounded-full shadow transition duration-300 hover:scale-95 ${
+                    registered
+                      ? "bg-red-500 hover:bg-red-600 hover:cursor-pointer"
+                      : availableSeats === 0
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-[#5e1c6a] hover:bg-[#704677] hover:cursor-pointer"
+                  }`}
+                >
+                  {registered
+                    ? "Unregister"
                     : availableSeats === 0
-                    ? () => {}
-                    : handleRegisterClick
-                }
-                disabled={
-                  (availableSeats === 0 || new Date(event.date) < new Date()) &&
-                  !registered
-                }
-                className={`w-full sm:w-auto px-4 py-2 text-white text-lg font-semibold rounded-full shadow transition duration-300 hover:scale-95 hover:cursor-pointer ${
-                  registered
-                    ? "bg-red-500 hover:bg-red-600"
-                    : availableSeats === 0
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-[#5e1c6a] hover:bg-[#704677]"
-                }`}
-              >
-                {registered
-                  ? "Unregister"
-                  : availableSeats === 0 || new Date(event.date) < new Date()
-                  ? "Registration Closed"
-                  : "Register"}
-              </button>
-            )}
+                    ? "Registration Closed"
+                    : "Register"}
+                </button>
+              ))}
           </div>
         </div>
 
@@ -341,6 +352,7 @@ const EventDetails = () => {
               setShowModal={setShowModal}
               editModalOpen={editModalOpen}
               setEditModalOpen={setEditModalOpen}
+              hasEventPassed={hasEventPassed}
             />
           )}
 
