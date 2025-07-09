@@ -27,7 +27,7 @@ const ParticipantModal = ({ eventId, token, onClose }) => {
   }, [eventId, token, BASE_URL]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/30 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-300/15 backdrop-blur-sm">
       <div className="bg-white p-6 rounded-lg w-[90%] max-w-3xl shadow-lg relative max-h-[90vh] flex flex-col">
         <h2 className="text-sm sm:text-2xl font-bold mb-4 text-center text-indigo-900">
           Registered Participants

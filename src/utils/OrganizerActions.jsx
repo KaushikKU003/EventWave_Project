@@ -6,10 +6,14 @@ import {
   RiFeedbackFill,
 } from "react-icons/ri";
 
-import { useContext } from "react";
+import { Dialog, DialogTitle, DialogContent, IconButton } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+
+import { useState, useContext } from "react";
 import ParticipantModal from "../utils/ParticipantModal";
 import { AuthContext } from "../context/AuthContext";
 import EditEventModal from "../utils/EditEventModal";
+import FeedbackForm from "./FeedbackModal";
 import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
@@ -22,16 +26,17 @@ const OrganizerActions = ({
   setShowModal,
   editModalOpen,
   setEditModalOpen,
+  hasEventPassed,
 }) => {
-  const hasEventPassed = new Date(event.date) < new Date();
-  // const hasEventPassed = true;
+  // const hasEventPassed = false;
   const { token } = useContext(AuthContext);
+  const [feedbackMOdalOpen, setFeedbackModalOpen] = useState(false);
 
   const handleEditClick = () => {
     setEditModalOpen(true);
   };
   const handleFeedback = () => {
-    alert("Feedback");
+    setFeedbackModalOpen(true);
   };
   return (
     <>
@@ -98,6 +103,23 @@ const OrganizerActions = ({
           }}
         />
       )}
+
+      <Dialog
+        open={feedbackMOdalOpen}
+        onClose={() => setFeedbackModalOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle className="flex justify-between items-center">
+          User Feedback
+          <IconButton onClick={() => setFeedbackModalOpen(false)}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers>
+          <FeedbackForm eventId={event.id} />
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
