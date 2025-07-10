@@ -8,7 +8,7 @@ import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 const CATEGORY_URL = `${BASE_URL}/api/categories`;
@@ -36,7 +36,7 @@ const EventCreationForm = () => {
   const [categories, setCategories] = useState([]);
   const [currentStep, setCurrentStep] = useState(1);
   const navigate = useNavigate();
-  const { token } = useContext(AuthContext);
+  const { role, token } = useContext(AuthContext);
 
   const today = dayjs();
 
@@ -193,6 +193,10 @@ const EventCreationForm = () => {
 
     return true;
   };
+
+  if (role === "USER") {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">

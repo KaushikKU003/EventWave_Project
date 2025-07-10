@@ -13,6 +13,8 @@ import EventCreationForm from "./components/EventCreationForm";
 import EventList from "./components/EventList";
 import EventDetails from "./components/EventDetails";
 import { LoadScript } from "@react-google-maps/api";
+import FeedbackForm from "./components/FeedbackForm";
+import NotFoundPage from "./components/NotFoundPage";
 
 function App() {
   const API_KEY = import.meta.env.VITE_GMAP_API_KEY;
@@ -48,10 +50,19 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="feedback"
+              element={
+                <ProtectedRoute>
+                  <FeedbackForm />
+                </ProtectedRoute>
+              }
+            />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
             <Route path="events" element={<EventList />} />
             <Route path="events/:id" element={<EventDetails />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
       </LoadScript>
