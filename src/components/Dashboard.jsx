@@ -85,6 +85,21 @@ const Dashboard = () => {
       ? "bg-[#9030a5] hover:bg-[#751d8a]"
       : "bg-[#ffaf16] hover:bg-[#e69d10]";
 
+  const isSameOrAfterToday = (dateStr) => {
+    const eventDate = new Date(dateStr);
+    const today = new Date();
+    eventDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    return eventDate >= today;
+  };
+
+  const upcomingEvents = events.filter((event) =>
+    isSameOrAfterToday(event.date)
+  );
+  const completedEvents = events.filter(
+    (event) => !isSameOrAfterToday(event.date)
+  );
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -97,9 +112,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-white px-6 py-12 font-RobotoSlab">
       <div className="flex justify-between items-center max-w-6xl mx-auto mb-12">
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#712681] drop-shadow">
-          {userType === "USER"
-            ? "Your Registered Events"
-            : "Your Upcoming Events"}
+          Your Events
         </h2>
 
         {userType !== "USER" && (
@@ -116,22 +129,50 @@ const Dashboard = () => {
         <div className="flex items-center justify-center h-screen">
           <ThreeDot size={30} color="#712681" />
         </div>
-      ) : events.length === 0 ? (
-        <div className="text-center text-gray-500 text-lg py-16">
-          No upcoming events.
-        </div>
       ) : (
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
-          {events.map((event) => (
-            <EventCard
-              key={event.id}
-              event={event}
-              onFavoriteToggle={() =>
-                handleFavoriteToggle(event.id, event.favorite)
-              }
-              buttonColor={buttonColor}
-            />
-          ))}
+        <div className="max-w-6xl mx-auto">
+          {upcomingEvents.length > 0 ? (
+            <>
+              <h3 className="text-xl font-semibold text-[#712681] mb-4">
+                Upcoming Events
+              </h3>
+              <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 mb-12">
+                {upcomingEvents.map((event) => (
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    onFavoriteToggle={() =>
+                      handleFavoriteToggle(event.id, event.favorite)
+                    }
+                    buttonColor={buttonColor}
+                  />
+                ))}
+              </div>
+            </>
+          ) : (
+            <p className="text-center text-gray-500 text-lg py-8">
+              No upcoming events.
+            </p>
+          )}
+          {completedEvents.length > 0 && (
+            <>
+              <h3 className="text-xl font-semibold text-[#712681] mb-4">
+                Completed Events
+              </h3>
+              <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                {completedEvents.map((event) => (
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    onFavoriteToggle={() =>
+                      handleFavoriteToggle(event.id, event.favorite)
+                    }
+                    buttonColor={buttonColor}
+                  />
+                ))}
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>

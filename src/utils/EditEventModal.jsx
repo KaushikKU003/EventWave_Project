@@ -185,7 +185,7 @@ const EditEventModal = ({ event, token, onClose, onUpdate }) => {
                   name="title"
                   value={formData.title}
                   onChange={handleChange}
-                  className="w-full p-2 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-2 focus:ring-[#5e1c6a] transition"
+                  className="w-full p-2 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-1 focus:ring-[#5e1c6a]  focus:outline-none transition"
                   required
                 />
               </div>
@@ -198,7 +198,7 @@ const EditEventModal = ({ event, token, onClose, onUpdate }) => {
                   name="location"
                   value={formData.location}
                   onChange={handleChange}
-                  className="w-full p-2 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-2 focus:ring-[#5e1c6a] transition"
+                  className="w-full p-2 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-1 focus:ring-[#5e1c6a]  focus:outline-none transition"
                   required
                 />
                 <button
@@ -218,7 +218,7 @@ const EditEventModal = ({ event, token, onClose, onUpdate }) => {
                   name="price"
                   value={formData.price}
                   onChange={handleChange}
-                  className="w-full p-2 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-2 focus:ring-[#5e1c6a] transition"
+                  className="w-full p-2 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-1 focus:ring-[#5e1c6a]  focus:outline-none transition"
                   required
                 />
               </div>
@@ -231,7 +231,7 @@ const EditEventModal = ({ event, token, onClose, onUpdate }) => {
                   name="capacity"
                   value={formData.capacity}
                   onChange={handleChange}
-                  className="w-full p-2 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-2 focus:ring-[#5e1c6a] transition"
+                  className="w-full p-2 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-1 focus:ring-[#5e1c6a]  focus:outline-none transition"
                   required
                 />
               </div>
@@ -243,7 +243,7 @@ const EditEventModal = ({ event, token, onClose, onUpdate }) => {
                   name="categoryId"
                   value={formData.categoryId}
                   onChange={handleChange}
-                  className="w-full p-2 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-2 focus:ring-[#5e1c6a] transition"
+                  className="w-full p-2 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-1 focus:ring-[#5e1c6a]  focus:outline-none transition"
                   required
                 >
                   <option value="">Select Category</option>
@@ -263,7 +263,7 @@ const EditEventModal = ({ event, token, onClose, onUpdate }) => {
                   name="date"
                   value={formData.date}
                   onChange={handleChange}
-                  className="w-full p-2 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-2 focus:ring-[#5e1c6a] transition"
+                  className="w-full p-2 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-1 focus:ring-[#5e1c6a]  focus:outline-none transition"
                   required
                   min={new Date().toISOString().split("T")[0]}
                 />
@@ -277,7 +277,7 @@ const EditEventModal = ({ event, token, onClose, onUpdate }) => {
                   name="startTime"
                   value={formData.startTime}
                   onChange={handleChange}
-                  className="w-full p-2 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-2 focus:ring-[#5e1c6a] transition"
+                  className="w-full p-2 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-1 focus:ring-[#5e1c6a]  focus:outline-none transition"
                   required
                 />
               </div>
@@ -290,7 +290,7 @@ const EditEventModal = ({ event, token, onClose, onUpdate }) => {
                   name="endTime"
                   value={formData.endTime}
                   onChange={handleChange}
-                  className="w-full p-2 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-2 focus:ring-[#5e1c6a] transition"
+                  className="w-full p-2 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-1 focus:ring-[#5e1c6a]  focus:outline-none transition"
                   required
                 />
               </div>
@@ -303,7 +303,7 @@ const EditEventModal = ({ event, token, onClose, onUpdate }) => {
                   name="latitude"
                   value={formData.latitude}
                   onChange={handleChange}
-                  className="w-full p-2 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-2 focus:ring-[#5e1c6a] transition"
+                  className="w-full p-2 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-1 focus:ring-[#5e1c6a]  focus:outline-none transition"
                   step="any"
                 />
               </div>
@@ -316,7 +316,7 @@ const EditEventModal = ({ event, token, onClose, onUpdate }) => {
                   name="longitude"
                   value={formData.longitude}
                   onChange={handleChange}
-                  className="w-full p-2 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-2 focus:ring-[#5e1c6a] transition"
+                  className="w-full p-2 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-1 focus:ring-[#5e1c6a]  focus:outline-none transition"
                   step="any"
                 />
               </div>
@@ -332,7 +332,7 @@ const EditEventModal = ({ event, token, onClose, onUpdate }) => {
                 value={formData.description}
                 onChange={handleChange}
                 rows={4}
-                className="w-full p-2 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-2 focus:ring-[#5e1c6a] transition"
+                className="w-full p-2 rounded-md border border-gray-300 bg-white shadow-sm focus:ring-1 focus:ring-[#5e1c6a] focus:outline-none transition"
                 required
               />
             </div>
