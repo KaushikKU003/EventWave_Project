@@ -38,6 +38,7 @@ const EventDetails = () => {
     message: "",
     onConfirm: () => {},
   });
+  const [hasEventStarted, setHasEventStarted] = useState(false);
   const [hasEventPassed, setHasEventPassed] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
@@ -69,10 +70,13 @@ const EventDetails = () => {
   }, [id, token, BASE_URL]);
 
   useEffect(() => {
-    if (event?.date && event?.startTime) {
+    if (event?.date && event?.startTime && event?.endTime) {
       const eventDateTime = new Date(`${event.date}T${event.startTime}`);
       const now = new Date();
-      setHasEventPassed(eventDateTime < now);
+      setHasEventStarted(eventDateTime < now);
+
+      const eventEndDateTime = new Date(`${event.date}T${event.endTime}`);
+      setHasEventPassed(eventEndDateTime < now);
     }
   }, [event]);
 
@@ -272,7 +276,7 @@ const EventDetails = () => {
 
           <div className="flex flex-col items-start sm:items-end gap-2">
             {availableSeats !== null &&
-              !hasEventPassed &&
+              !hasEventStarted &&
               (role === "USER" ||
                 (role === "ORGANIZER" &&
                   customerUserName === event.organizer?.username)) && (
@@ -284,10 +288,20 @@ const EventDetails = () => {
             {/* Register button for USER and unauthenticated */}
             {(!token || role === "USER") &&
               (hasEventPassed ? (
-                <p className="text-white text-lg font-semibold bg-red-600 px-4 py-2 rounded-full ">
+                // Case 1: Event is finished
+                <p className="text-white text-lg font-semibold bg-red-600 px-4 py-2 rounded-full">
                   Event Completed
                 </p>
+              ) : hasEventStarted ? (
+                // Case 2: Event is ongoing
+                <button
+                  disabled
+                  className="w-full sm:w-auto px-4 py-2 text-white text-lg font-semibold rounded-full shadow bg-gray-400 cursor-not-allowed"
+                >
+                  Registration Closed
+                </button>
               ) : (
+                // Case 3: Event has not started
                 <button
                   onClick={
                     registered
