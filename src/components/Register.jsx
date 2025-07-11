@@ -106,9 +106,7 @@ const Register = () => {
           },
         }
       );
-      // Success response: "User registered successfully"
-      // alert(response.data || "Registration successful!");
-      toast.success(response.data || "Registration successful!");
+      toast.success(response.data.message || "Registration successful!");
       setFullName("");
       setEmail("");
       setPassword("");
@@ -122,11 +120,11 @@ const Register = () => {
       if (error.response) {
         const status = error.response.status;
         const message = error.response.data;
-
+        
         if (status === 409) {
           setServerEmailError(message);
         } else {
-          toast.error(message || "Registration failed.");
+          toast.error("Registration failed.");
         }
       } else {
         // alert("Something went wrong. Please try again.");

@@ -1,121 +1,180 @@
-import React, { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaMicrophone, FaGuitar, FaFutbol, FaLaptopCode } from "react-icons/fa";
+import axios from "axios";
 import EventCard from "./EventCard";
 import { AuthContext } from "../context/AuthContext";
+import { ThreeDot } from "react-loading-indicators";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
+const MY_EVENT_URL = `${BASE_URL}/api/events/my-events`;
+const FAVORITE_ADD_URL = `${BASE_URL}/api/favorites/add`;
+const FAVORITE_REMOVE_URL = `${BASE_URL}/api/favorites/remove`;
 
 const Dashboard = () => {
-  const { role: userType, isLoggedIn } = useContext(AuthContext);
+  const {
+    role: userType,
+    isLoggedIn,
+    loading,
+    token,
+  } = useContext(AuthContext);
   const [events, setEvents] = useState([]);
-  const [favorites, setFavorites] = useState({});
+  const [eventsLoading, setEventsLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Redirect if user is not logged in (after auth is initialized)
   useEffect(() => {
     if (isLoggedIn === false) {
       navigate("/login");
     }
   }, [isLoggedIn, navigate]);
 
-  // Load dummy events based on role
-  useEffect(() => {
-    if (!userType) return;
-
-    const fetchEvents = async () => {
-      try {
-        const dummyEvents =
-          userType === "User"
-            ? [
-                {
-                  id: 1,
-                  name: "Tech Conference",
-                  date: "2025-07-01",
-                  category: "tech",
-                  description: "Explore the future of tech",
-                },
-                {
-                  id: 2,
-                  name: "Music Festival",
-                  date: "2025-07-10",
-                  category: "music",
-                  description: "Live performances and more",
-                },
-              ]
-            : [
-                {
-                  id: 101,
-                  name: "Startup Pitch",
-                  date: "2025-07-05",
-                  category: "business",
-                  description: "Pitch your idea to investors",
-                },
-                {
-                  id: 102,
-                  name: "Football Mania",
-                  date: "2025-07-15",
-                  category: "sports",
-                  description: "Local teams clash!",
-                },
-              ];
-        setEvents(dummyEvents);
-      } catch (err) {
-        console.error("Error fetching events:", err);
+  const fetchEvents = async () => {
+    try {
+      setEventsLoading(true);
+      const response = await axios.get(MY_EVENT_URL, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setEvents(response.data);
+    } catch (err) {
+      console.error("Error fetching events:", err);
+      if (err.response && err.response.status === 401) {
+        navigate("/login");
       }
-    };
+    } finally {
+      setEventsLoading(false);
+    }
+  };
 
+  useEffect(() => {
+    if (loading || !userType || !token) return;
     fetchEvents();
-  }, [userType]);
+  }, [userType, loading, token]);
 
-  const handleEventClick = (id) => {
-    navigate(`/event/${id}`);
+  const handleFavoriteToggle = async (eventId, isFavorite) => {
+    if (!token) {
+      toast.warn("Please login to favorite events.", {
+        position: "top-right",
+        autoClose: 3000,
+        theme: "colored",
+      });
+      return;
+    }
+
+    try {
+      if (isFavorite) {
+        await axios.delete(`${FAVORITE_REMOVE_URL}/${eventId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } else {
+        await axios.post(
+          `${FAVORITE_ADD_URL}/${eventId}`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      }
+      await fetchEvents();
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      alert("Failed to update favorite. Please try again.");
+    }
   };
 
-  const toggleFavorite = (id) => {
-    setFavorites((prev) => ({ ...prev, [id]: !prev[id] }));
+  const buttonColor =
+    userType === "USER"
+      ? "bg-[#9030a5] hover:bg-[#751d8a]"
+      : "bg-[#ffaf16] hover:bg-[#e69d10]";
+
+  const isSameOrAfterToday = (dateStr) => {
+    const eventDate = new Date(dateStr);
+    const today = new Date();
+    eventDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    return eventDate >= today;
   };
 
-  const getGradient = (index) => {
-    const gradients = [
-      "from-[#9030a5] to-[#d8328e]",
-      "from-[#ff5871] to-[#ff8d58]",
-      "from-[#ffc453] to-[#f9f871]",
-    ];
-    return gradients[index % gradients.length];
-  };
+  const upcomingEvents = events.filter((event) =>
+    isSameOrAfterToday(event.date)
+  );
+  const completedEvents = events.filter(
+    (event) => !isSameOrAfterToday(event.date)
+  );
 
-  const categoryIcons = {
-    tech: <FaLaptopCode size={50} className="text-[#712681]" />,
-    music: <FaGuitar size={50} className="text-[#712681]" />,
-    sports: <FaFutbol size={50} className="text-[#712681]" />,
-    business: <FaMicrophone size={50} className="text-[#712681]" />,
-  };
-
-  const pillColor = userType === "User" ? "bg-[#712681]" : "bg-[#ffb62a]";
-  const headingText =
-    userType === "User" ? "Your Registered Events" : "Your Upcoming Events";
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <ThreeDot size={30} color="#712681" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white px-6 py-12 font-RobotoSlab">
-      <h2 className="text-4xl font-bold text-center text-[#712681] mb-12 drop-shadow">
-        {headingText}
-      </h2>
+      <div className="flex justify-between items-center max-w-6xl mx-auto mb-12">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#712681] drop-shadow">
+          Your Events
+        </h2>
 
-      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
-        {events.map((event, index) => (
-          <EventCard
-            key={event.id}
-            event={event}
-            index={index}
-            gradient={getGradient(index)}
-            isFavorite={favorites[event.id]}
-            onToggleFavorite={toggleFavorite}
-            onClick={handleEventClick}
-            icon={categoryIcons[event.category]}
-            pillLabel={userType === "User" ? "Registered" : "Organized"}
-            pillColor={pillColor}
-          />
-        ))}
+        {userType !== "USER" && (
+          <button
+            onClick={() => navigate("/eventcreation")}
+            className="bg-[#712681] text-white px-4 py-2 sm:px-6 sm:py-2.5 md:px-8 md:py-3 text-base sm:text-lg rounded-xl hover:bg-[#5e1c6a] transition"
+          >
+            Create New Event
+          </button>
+        )}
       </div>
+
+      {eventsLoading ? (
+        <div className="flex items-center justify-center h-screen">
+          <ThreeDot size={30} color="#712681" />
+        </div>
+      ) : (
+        <div className="max-w-6xl mx-auto">
+          {upcomingEvents.length > 0 ? (
+            <>
+              <h3 className="text-xl font-semibold text-[#712681] mb-4">
+                Upcoming Events
+              </h3>
+              <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 mb-12">
+                {upcomingEvents.map((event) => (
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    onFavoriteToggle={() =>
+                      handleFavoriteToggle(event.id, event.favorite)
+                    }
+                    buttonColor={buttonColor}
+                  />
+                ))}
+              </div>
+            </>
+          ) : (
+            <p className="text-center text-gray-500 text-lg py-8">
+              No upcoming events.
+            </p>
+          )}
+          {completedEvents.length > 0 && (
+            <>
+              <h3 className="text-xl font-semibold text-[#712681] mb-4">
+                Completed Events
+              </h3>
+              <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                {completedEvents.map((event) => (
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    onFavoriteToggle={() =>
+                      handleFavoriteToggle(event.id, event.favorite)
+                    }
+                    buttonColor={buttonColor}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 };

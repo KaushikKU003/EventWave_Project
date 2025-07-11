@@ -42,7 +42,7 @@ const Login = () => {
       password: password,
       role: userType,
     };
-    console.log(loginCredentials);
+    // console.log(loginCredentials);
 
     try {
       const response = await axios.post(
@@ -56,16 +56,17 @@ const Login = () => {
       );
       // Extract user from response
       const { token, user } = response.data;
-
       // Update context
       login({
-        username: user.username,
+        fullName: user.fullName,
         role: user.role,
         token: token,
+        customer_username: user.username,
       });
-
+      console.log(response.data);
+      
       // Show success toast
-      toast.success("Login successful!", {
+      toast.success(response.data.message, {
         position: "top-right",
         autoClose: 2000,
         theme: "colored",

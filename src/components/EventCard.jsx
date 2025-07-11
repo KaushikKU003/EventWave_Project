@@ -1,57 +1,84 @@
-import React from "react";
-import { FaBookmark, FaRegBookmark } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import { useContext } from "react";
+import {
+  FaHeart,
+  FaRegHeart,
+  FaLaptopCode,
+  FaGuitar,
+  FaFutbol,
+  FaMicrophone,
+  FaHeartbeat,
+  FaBook,
+  FaPalette,
+} from "react-icons/fa";
+
+const categoryIcons = {
+  tech: <FaLaptopCode className="text-purple-700" />,
+  music: <FaGuitar className="text-purple-700" />,
+  sports: <FaFutbol className="text-purple-700" />,
+  business: <FaMicrophone className="text-purple-700" />,
+  health: <FaHeartbeat className="text-purple-700" />,
+  education: <FaBook className="text-purple-700" />,
+  art: <FaPalette className="text-purple-700" />,
+};
 
 const EventCard = ({
   event,
-  gradient,
-  isFavorite,
-  onToggleFavorite,
-  onClick,
-  icon,
-  pillLabel,
-  pillColor,
+  onFavoriteToggle = () => {},
+  buttonColor = "",
 }) => {
+  const navigate = useNavigate();
+  const { role } = useContext(AuthContext);
+
+  const handleShowMore = () => {
+    navigate(`/events/${parseInt(event.id)}`);
+  };
+
   return (
-    <div className="relative bg-[#fef7ff] rounded-xl shadow hover:shadow-xl transition duration-300 border border-gray-200 text-center flex flex-col items-center">
-      {/* Gradient Top Border */}
-      <div className={`h-2 w-full rounded-t-xl bg-gradient-to-r ${gradient}`} />
+    <div className="relative max-w-sm rounded-xl overflow-hidden shadow-md bg-white transition hover:shadow-xl">
+      <img
+        className="w-full h-48 object-cover"
+        src={event.imageUrl}
+        alt={event.title}
+      />
 
       {/* Favorite Icon */}
-      <button
-        onClick={() => onToggleFavorite(event.id)}
-        className="absolute top-4 right-3 z-10"
-      >
-        {isFavorite ? (
-          <FaBookmark className="text-[#d8328e] text-lg" />
-        ) : (
-          <FaRegBookmark className="text-[#d8328e] text-lg" />
-        )}
-      </button>
+      {role !== "ORGANIZER" && (
+        <div className="absolute top-2 right-2">
+          <button onClick={onFavoriteToggle} title="Favorite">
+            {event.favorite ? (
+              <FaHeart className="text-red-500 text-xl" />
+            ) : (
+              <FaRegHeart className="text-red-500 text-xl" />
+            )}
+          </button>
+        </div>
+      )}
 
-      {/* Category Icon */}
-      <div className="mt-6 z-0">{icon}</div>
-
-      {/* Event Info */}
-      <h3 className="text-xl font-semibold text-[#5c076f] mt-4 z-0">
-        {event.name}
-      </h3>
-      <p className="text-gray-600 px-4 mt-2 z-0">{event.description}</p>
-      <p className="text-sm text-gray-500 mt-1 z-0">Date: {event.date}</p>
-
-      {/* Status Pill */}
-      <div className="mt-4 mb-5">
-        <span
-          className={`text-xs text-white ${pillColor} px-3 py-1 rounded-full font-medium shadow`}
+      <div className="px-6 py-4">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-bold text-xl">{event.title}</h3>
+          {categoryIcons[event.categoryName?.toLowerCase()?.trim()] || null}
+        </div>
+        <p className="text-gray-700 text-base mb-2  text-justify">
+          {event.description}
+        </p>
+        <p className="text-sm text-gray-600">📌 {event.location}</p>
+        <p className="text-sm text-gray-600">
+          📆
+          {new Date(event.date).toLocaleDateString("en-GB").replace(/\//g, "-")}
+        </p>
+        <p className="text-sm text-gray-600">
+          🪑 {event.availableSeats} seats available
+        </p>
+        <button
+          onClick={handleShowMore}
+          className={`mt-4 w-full ${buttonColor} text-white rounded py-2 px-4 transition`}
         >
-          {pillLabel}
-        </span>
+          Show More
+        </button>
       </div>
-
-      {/* Click Overlay */}
-      <div
-        onClick={() => onClick(event.id)}
-        className="absolute inset-0 z-0 cursor-pointer"
-      />
     </div>
   );
 };
