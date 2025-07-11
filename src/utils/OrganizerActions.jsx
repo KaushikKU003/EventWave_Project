@@ -26,7 +26,7 @@ const OrganizerActions = ({
   setShowModal,
   editModalOpen,
   setEditModalOpen,
-  hasEventPassed,
+  hasEventStarted,
 }) => {
   // const hasEventPassed = false;
   const { token } = useContext(AuthContext);
@@ -52,7 +52,7 @@ const OrganizerActions = ({
         </button>
 
         {/* If event is upcoming: show Edit/Delete, else Show Feedback */}
-        {hasEventPassed ? (
+        {hasEventStarted ? (
           <button
             onClick={handleFeedback} // Replace with actual logic
             className="px-4 py-2 text-white text-sm font-semibold rounded-full shadow bg-green-600 hover:bg-green-700 transition duration-300 hover:scale-95 hover:cursor-pointer flex items-center gap-1"

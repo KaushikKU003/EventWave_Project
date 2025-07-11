@@ -366,7 +366,7 @@ const EventDetails = () => {
               setShowModal={setShowModal}
               editModalOpen={editModalOpen}
               setEditModalOpen={setEditModalOpen}
-              hasEventPassed={hasEventPassed}
+              hasEventStarted={hasEventStarted}
             />
           )}
 
