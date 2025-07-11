@@ -123,6 +123,7 @@ const Register = () => {
         
         if (status === 409) {
           setServerEmailError(message);
+          setIsEmailVerified(false);
         } else {
           toast.error("Registration failed.");
         }
