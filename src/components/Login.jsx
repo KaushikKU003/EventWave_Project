@@ -23,6 +23,8 @@ const Login = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
+
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -44,7 +46,7 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        "https://backend-eventwave-production.up.railway.app/api/auth/login",
+        `${BASE_URL}/api/auth/login`,
         loginCredentials,
         {
           headers: {
