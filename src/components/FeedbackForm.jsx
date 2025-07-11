@@ -22,7 +22,6 @@ const FeedbackForm = () => {
   const { role, token } = useContext(AuthContext);
 
   useEffect(() => {
-    // Fetch event title from backend
     const fetchEventTitle = async () => {
       try {
         const response = await fetch(`${BASE_URL}/api/events/${eventId}`, {
@@ -60,10 +59,7 @@ const FeedbackForm = () => {
     }
 
     try {
-      // TODO: Integrate with backend feedback submission API when available.
-      // This POST request sends the feedback (eventId, rating, description) to the backend.
-      // Backend team needs to provide the /api/feedback endpoint for this to work.
-      const response = await fetch(`${BASE_URL}/api/feedback`, {
+      const response = await fetch(`${BASE_URL}/api/reviews`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -72,13 +68,22 @@ const FeedbackForm = () => {
         body: JSON.stringify({
           eventId,
           rating,
-          description,
+          comment: description,
         }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to submit feedback");
+        let errorMessage = "Failed to submit feedback";
+        try {
+          const text = await response.text();
+          if (text) {
+            const errorData = JSON.parse(text);
+            errorMessage = errorData.message || errorMessage;
+          }
+        } catch (err) {
+          console.error("Error parsing error response:", err);
+        }
+        throw new Error(errorMessage);
       }
 
       toast.success(`Feedback submitted! Thank you.`, {
