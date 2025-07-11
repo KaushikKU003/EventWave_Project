@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 import Logo from "../Images/Logo_PNG.png";
 import { MdOutlineMail } from "react-icons/md";
 import { IoLockClosed } from "react-icons/io5";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate,useLocation } from "react-router-dom";
 import { RiEyeCloseLine } from "react-icons/ri";
 import { AiFillEye } from "react-icons/ai";
 import "../App.css";
@@ -22,6 +22,9 @@ const Login = () => {
 
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
+
 
   const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
@@ -78,7 +81,7 @@ const Login = () => {
       setPassword("");
       setEmailError("");
       setLoginError("");
-      setTimeout(() => navigate("/"), 500);
+      setTimeout(() => navigate(from), 500);
     } catch (error) {
       if (error.response && error.response.status === 400) {
         // Set login error from backend message
