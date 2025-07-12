@@ -277,7 +277,7 @@ const EventDetails = () => {
           <div className="flex flex-col items-start sm:items-end gap-2">
             {availableSeats !== null &&
               !hasEventStarted &&
-              (role === "USER" ||
+              (!token ||role === "USER" ||
                 (role === "ORGANIZER" &&
                   customerUserName === event.organizer?.username)) && (
                 <p className="text-sm text-red-600 font-medium">
