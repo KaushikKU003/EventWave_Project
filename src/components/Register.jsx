@@ -34,8 +34,13 @@ const Register = () => {
 
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [verifyDialogOpen, setVerifyDialogOpen] = useState(false);
-  const [code, setCode] = useState("");
-  const savedCode = "1234";
+
+  const [otp, setOtp] = useState("");
+  const [otpError, setOtpError] = useState("");
+  const [timer, setTimer] = useState(60);
+  const [otpSentAt, setOtpSentAt] = useState(null); // Stores Date.now()
+  const [canResend, setCanResend] = useState(false);
+  const [hasSentOtpOnce, setHasSentOtpOnce] = useState(false);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const passwordRegex =
@@ -56,7 +61,7 @@ const Register = () => {
   };
 
   const handleCodeChange = (code) => {
-    setCode(code);
+    setOtp(code);
   };
 
   const validatePassword = () => {
@@ -77,6 +82,7 @@ const Register = () => {
     }
   };
 
+  // Validate password when confirmPassword changes
   useEffect(() => {
     validateConfirmPassword();
   }, [confirmPassword]);
@@ -120,10 +126,15 @@ const Register = () => {
       if (error.response) {
         const status = error.response.status;
         const message = error.response.data;
-        
+
         if (status === 409) {
           setServerEmailError(message);
-          setIsEmailVerified(false);
+          setIsEmailVerified(false); // Reset email verified state
+          setOtp(""); // Clear OTP input
+          setHasSentOtpOnce(false); // Allow sending OTP again
+          setOtpSentAt(null); // Reset timer tracking
+          setTimer(60); // Reset countdown (optional)
+          setCanResend(false); // Disable resend initially
         } else {
           toast.error("Registration failed.");
         }
@@ -134,6 +145,15 @@ const Register = () => {
     }
   };
 
+  //js functions
+  const formatTime = (seconds) => `00:${String(seconds).padStart(2, "0")}`;
+
+  const startOtpTimer = () => {
+    const now = Date.now();
+    setOtpSentAt(now);
+    setCanResend(false);
+  };
+
   const isFormValid =
     fullName &&
     email &&
@@ -142,6 +162,61 @@ const Register = () => {
     isEmailVerified &&
     !passwordError &&
     !confirmPasswordError;
+
+  const sendOtpToEmail = async () => {
+    try {
+      await axios.post(`${BASE_URL}/api/otp/send`, { email });
+    } catch (error) {
+      console.error(
+        "Error sending OTP:",
+        error.response?.data || error.message
+      );
+    }
+  };
+
+  const verifyOtpWithServer = async () => {
+    try {
+      const response = await axios.post(`${BASE_URL}/api/otp/verify`, {
+        email,
+        otp,
+      });
+      if (response.data.status == "success") {
+        toast.success("Email verified successfully!");
+        setIsEmailVerified(true);
+        setVerifyDialogOpen(false);
+        setOtpError("");
+      } else {
+        setOtpError("Invalid OTP. Please try again.");
+      }
+    } catch (error) {
+      console.error(
+        "Verification failed:",
+        error.response?.data || error.message
+      );
+      toast.error("Verification failed. Please try again.");
+    }
+  };
+
+  const handleResend = () => {
+    setOtp(""); // Clear input
+    setOtpError(""); // Optional: clear error if showing
+    sendOtpToEmail(); // Send new OTP
+    startOtpTimer(); // ⏱ Start consistent 60-sec timer
+  };
+
+  useEffect(() => {
+    if (!otpSentAt) return; // Don't run if OTP hasn't been sent
+
+    const interval = setInterval(() => {
+      const elapsedSeconds = Math.floor((Date.now() - otpSentAt) / 1000);
+      const remaining = Math.max(60 - elapsedSeconds, 0);
+
+      setTimer(remaining);
+      setCanResend(remaining === 0);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [otpSentAt]);
 
   return (
     <>
@@ -189,7 +264,11 @@ const Register = () => {
             <div className="mb-3 w-[85%] mx-auto">
               <div
                 className={`flex items-center bg-gray-100 rounded-xl px-4 py-2 outline-2 
-                            ${isEmailVerified ? "outline-green-500" : "outline-indigo-400/50"}`}
+                            ${
+                              isEmailVerified
+                                ? "outline-green-500"
+                                : "outline-indigo-400/50"
+                            }`}
               >
                 <span className="text-2xl">
                   <MdOutlineMail />
@@ -217,10 +296,17 @@ const Register = () => {
               )}
 
               {/* Show Verify Email only if not verified */}
-             {!emailError && email && !isEmailVerified && (
+              {!emailError && email && !isEmailVerified && (
                 <p
                   className="text-sm text-blue-600 mt-1 underline cursor-pointer"
-                  onClick={() => setVerifyDialogOpen(true)}
+                  onClick={() => {
+                    if (!hasSentOtpOnce) {
+                      sendOtpToEmail();
+                      setHasSentOtpOnce(true);
+                      startOtpTimer(); // ⏱ Start timer
+                    }
+                    setVerifyDialogOpen(true);
+                  }}
                 >
                   Verify Email
                 </p>
@@ -353,12 +439,19 @@ const Register = () => {
 
       <Dialog
         open={verifyDialogOpen}
-        onClose={() => setVerifyDialogOpen(false)}
+        onClose={() => {
+          setVerifyDialogOpen(false);
+          setHasSentOtpOnce(false);
+        }}
         className="font-RobotoSlab"
       >
         <DialogTitle className="flex justify-between items-center">
           Verify Your Email
-          <IconButton onClick={() => setVerifyDialogOpen(false)}>
+          <IconButton
+            onClick={() => {
+              setVerifyDialogOpen(false);
+            }}
+          >
             <CloseIcon />
           </IconButton>
         </DialogTitle>
@@ -366,36 +459,49 @@ const Register = () => {
         <DialogContent>
           <div className="py-4">
             <p className="mb-4 text-gray-700 text-sm">
-              Enter the 4-digit Code sent to your email.
+              Enter the 4-digit OTP sent to your email.
             </p>
 
-            <MuiOtpInput onChange={handleCodeChange} value={code} length={4} />
+            <MuiOtpInput onChange={handleCodeChange} value={otp} length={4} />
+
+            {otpError && (
+              <p className="text-red-600 text-sm text-center mt-2">
+                {otpError}
+              </p>
+            )}
+
+            {/* Countdown Timer */}
+            <p className="text-center text-sm text-gray-600 mt-4">
+              {canResend ? (
+                <span className="text-green-600 font-medium">
+                  You can now resend the OTP
+                </span>
+              ) : (
+                <>
+                  Resend available in: <strong>{formatTime(timer)}</strong>
+                </>
+              )}
+            </p>
 
             {/* Buttons */}
             <div className="mt-6 flex justify-center gap-4">
               <button
-                onClick={() => {
-                  if (code === savedCode) {
-                    alert("Code Verified Successfully!");
-                    setIsEmailVerified(true); // ✅ Email is now verified
-                    setVerifyDialogOpen(false); // Close dialog or proceed
-                  } else {
-                    alert("Invalid Code. Please try again.");
-                  }
-                }}
+                onClick={verifyOtpWithServer}
                 className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
               >
                 Verify
               </button>
 
               <button
-                onClick={() => {
-                  // Reset logic placeholder
-                  alert("Reset clicked (add logic later)");
-                }}
-                className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400 transition"
+                onClick={handleResend}
+                disabled={!canResend}
+                className={`px-4 py-2 rounded transition ${
+                  canResend
+                    ? "bg-gray-300 text-gray-800 hover:bg-gray-400"
+                    : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                }`}
               >
-                Resend Code
+                Resend OTP
               </button>
             </div>
           </div>
