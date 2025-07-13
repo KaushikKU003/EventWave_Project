@@ -432,16 +432,19 @@ const EventList = () => {
       {/* Events Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredEvents.length > 0 ? (
-          filteredEvents.map((event) => (
-            <EventCard
-              key={event.id}
-              event={event}
-              buttonColor="bg-[#9030a5] hover:bg-[#751d8a]"
-              onFavoriteToggle={() =>
-                handleFavoriteToggle(event.id, event.favorite)
-              }
-            />
-          ))
+          filteredEvents.map((event) => {
+            const toggleFavorite = () =>
+              handleFavoriteToggle(event.id, event.favorite);
+
+            return (
+              <EventCard
+                key={event.id}
+                event={event}
+                buttonColor="bg-[#9030a5] hover:bg-[#751d8a]"
+                onFavoriteToggle={toggleFavorite}
+              />
+            );
+          })
         ) : (
           <p className="mt-4 text-center text-gray-500">
             {onlyFavorites

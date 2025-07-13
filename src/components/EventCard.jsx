@@ -1,3 +1,4 @@
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { useContext } from "react";
@@ -83,4 +84,10 @@ const EventCard = ({
   );
 };
 
-export default EventCard;
+export default React.memo(EventCard, (prevProps, nextProps) => {
+  return (
+    prevProps.event.id === nextProps.event.id &&
+    prevProps.event.favorite === nextProps.event.favorite &&
+    prevProps.buttonColor === nextProps.buttonColor
+  );
+});
