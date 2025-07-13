@@ -160,16 +160,19 @@ const Dashboard = () => {
                 Completed Events
               </h3>
               <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                {completedEvents.map((event) => (
-                  <EventCard
-                    key={event.id}
-                    event={event}
-                    onFavoriteToggle={() =>
-                      handleFavoriteToggle(event.id, event.favorite)
-                    }
-                    buttonColor={buttonColor}
-                  />
-                ))}
+                {completedEvents.map((event) => {
+                  const toggleFavorite = () =>
+                    handleFavoriteToggle(event.id, event.favorite);
+
+                  return (
+                    <EventCard
+                      key={event.id}
+                      event={event}
+                      onFavoriteToggle={toggleFavorite}
+                      buttonColor={buttonColor}
+                    />
+                  );
+                })}
               </div>
             </>
           )}
