@@ -51,3 +51,11 @@
 .leaflet-container {
   z-index: 0 !important;
 }
+
+.home-page-hero{
+  background-image:url("./Images/LogoSymbol_PNG.png") ;
+}
+
+.home-page-parallx{
+  background-image: url("./Images/Event-Homepage.jpg");
+}
