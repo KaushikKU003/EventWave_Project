@@ -1,30 +1,40 @@
 import { Routes, Route } from "react-router-dom";
-import Home from "./components/Home";
-import Login from "./components/Login";
-import Register from "./components/Register";
-import Dashboard from "./components/Dashboard";
-import ResponsiveNavbar from "./components/ResponsiveNavbar";
-import ProtectedRoute from "./utils/ProtectedRoute";
-
+import { Suspense, lazy } from "react";
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import ProfilePage from "./components/ProfilePage";
-import EventCreationForm from "./components/EventCreationForm";
-import EventList from "./components/EventList";
-import EventDetails from "./components/EventDetails";
 import { LoadScript } from "@react-google-maps/api";
-import FeedbackForm from "./components/FeedbackForm";
-import NotFoundPage from "./components/NotFoundPage";
+
+import "react-toastify/dist/ReactToastify.css";
+import ProtectedRoute from "./utils/ProtectedRoute";
 import ErrorBoundary from "./components/ErrorBoundary";
+import { ThreeDot } from "react-loading-indicators";
+
+// Lazy-loaded components
+const Home = lazy(() => import("./components/Home"));
+const Login = lazy(() => import("./components/Login"));
+const Register = lazy(() => import("./components/Register"));
+const Dashboard = lazy(() => import("./components/Dashboard"));
+const ResponsiveNavbar = lazy(() => import("./components/ResponsiveNavbar"));
+const ProfilePage = lazy(() => import("./components/ProfilePage"));
+const EventCreationForm = lazy(() => import("./components/EventCreationForm"));
+const EventList = lazy(() => import("./components/EventList"));
+const EventDetails = lazy(() => import("./components/EventDetails"));
+const FeedbackForm = lazy(() => import("./components/FeedbackForm"));
+const NotFoundPage = lazy(() => import("./components/NotFoundPage"));
 
 function App() {
   const API_KEY = import.meta.env.VITE_GMAP_API_KEY;
+
   return (
-    <>
-      {/* ToastContainer should be outside Routes to remain mounted always */}
-      <ErrorBoundary>
-        <LoadScript googleMapsApiKey={API_KEY}>
-          <ToastContainer />
+    <ErrorBoundary>
+      <LoadScript googleMapsApiKey={API_KEY}>
+        <ToastContainer />
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center h-screen">
+              <ThreeDot size={30} color="#712681" />
+            </div>
+          }
+        >
           <Routes>
             <Route path="/" element={<ResponsiveNavbar />}>
               <Route index element={<Home />} />
@@ -67,9 +77,9 @@ function App() {
               <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Routes>
-        </LoadScript>
-      </ErrorBoundary>
-    </>
+        </Suspense>
+      </LoadScript>
+    </ErrorBoundary>
   );
 }
 
