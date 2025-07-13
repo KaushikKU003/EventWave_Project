@@ -11,6 +11,7 @@ const ProfilePage = () => {
   const navigate = useNavigate();
 
   const originalDataRef = useRef(null);
+   const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -29,7 +30,7 @@ const ProfilePage = () => {
     const fetchProfile = async () => {
       try {
         const response = await axios.get(
-          "https://backend-eventwave-production.up.railway.app/api/auth/profile",
+          `${BASE_URL}/api/auth/profile`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -100,7 +101,7 @@ const ProfilePage = () => {
 
     try {
       const response = await axios.put(
-        "https://backend-eventwave-production.up.railway.app/api/auth/profile/update",
+        `${BASE_URL}/api/auth/profile/update`,
         payload,
         {
           headers: {
