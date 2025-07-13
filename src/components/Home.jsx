@@ -100,7 +100,7 @@ const Home = () => {
       {/* Hero Section */}
       <section className="relative bg-[radial-gradient(circle,_#8c509a_0%,_#450e57_100%)] text-white py-20 px-6 text-center h-[90vh] flex justify-center items-center flex-col overflow-hidden">
         {/* Subtle, protected logo */}
-        <div className="absolute inset-0 bg-[url('./src/Images/LogoSymbol_PNG.png')] bg-[length:300px] md:bg-[length:600px] bg-no-repeat bg-center opacity-10 pointer-events-none select-none slow-spin"></div>
+        <div className="absolute inset-0  bg-[length:300px] md:bg-[length:600px] bg-no-repeat bg-center opacity-10 pointer-events-none select-none slow-spin home-page-hero"></div>
 
         <h1 className="text-4xl md:text-7xl font-bold mb-4 z-10">
           Welcome to{" "}
@@ -120,10 +120,7 @@ const Home = () => {
 
       {/* Parallax Section - No external library */}
       <section
-        className="bg-fixed bg-center bg-cover h-[400px] flex items-center justify-center font-Abril"
-        style={{
-          backgroundImage: "url('./src/Images/Event-Homepage.jpg')",
-        }}
+        className="home-page-parallx bg-fixed bg-center bg-cover h-[400px] flex items-center justify-center font-Abril"
       >
         <div className="w-full px-4 sm:px-6">
           <div className="glass-bg p-8 rounded-xl text-center max-w-3xl mx-auto">
