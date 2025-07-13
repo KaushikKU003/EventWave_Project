@@ -1,3 +1,10 @@
+.home-page-hero{
+  background-image:url("/LogoSymbol_PNG.png") ;
+}
+
+.home-page-parallx{
+  background-image: url("/Event-Homepage.jpg");
+}
 .login-bg {
   background-image: url("./Images/Login_Bg_Image.jpg");
   background-size: cover;
@@ -50,12 +57,4 @@
 
 .leaflet-container {
   z-index: 0 !important;
-}
-
-.home-page-hero{
-  background-image:url("./Images/LogoSymbol_PNG.png") ;
-}
-
-.home-page-parallx{
-  background-image: url("./Images/Event-Homepage.jpg");
 }
