@@ -2,7 +2,7 @@ import { useEffect, useState, useContext, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import EventCard from "./EventCard";
-import { Filter } from "lucide-react";
+import { Filter, Search } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import { ThreeDot } from "react-loading-indicators";
 import { toast } from "react-toastify";
@@ -31,9 +31,15 @@ const EventList = () => {
   const [categoryMap, setCategoryMap] = useState({});
   const { token, role } = useContext(AuthContext);
 
-  const debounceTimeout = useRef(null);
   const hasAppliedUrlCategory = useRef(false);
   const location = useLocation();
+  const isFilterActive =
+    searchQuery ||
+    selectedLocation ||
+    selectedCategory ||
+    startDate ||
+    endDate ||
+    onlyFavorites;
 
   // Fetching categories
   useEffect(() => {
@@ -94,8 +100,10 @@ const EventList = () => {
         });
         const data = response.data;
         const locations = [
-          ...new Set(data.map((event) => event.location)),
-        ].sort((a, b) => a.localeCompare(b));
+          ...new Set(data.map((event) => event.location.trim().toLowerCase())),
+        ]
+          .sort((a, b) => a.localeCompare(b))
+          .map((loc) => loc.replace(/\b\w/g, (char) => char.toUpperCase()));
         setLocations(locations);
       } catch (error) {
         console.error("Error fetching metadata:", error);
@@ -104,6 +112,20 @@ const EventList = () => {
 
     fetchMetaData();
   }, [token]);
+
+  // Fetch all events on initial load (if no filters applied)
+  useEffect(() => {
+    if (!hasAppliedUrlCategory.current) {
+      fetchFilteredEvents({
+        keyword: "",
+        location: "",
+        categoryId: null,
+        startDate: "",
+        endDate: "",
+        onlyFavorites: false,
+      });
+    }
+  }, [categoryMap]);
 
   const fetchFilteredEvents = async ({
     keyword,
@@ -156,29 +178,33 @@ const EventList = () => {
     }
   };
 
-  // Debounced Search + Filter
-  useEffect(() => {
-    if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
-    debounceTimeout.current = setTimeout(() => {
-      fetchFilteredEvents({
-        keyword: searchQuery,
-        location: selectedLocation,
-        categoryId: categoryMap[selectedCategory],
-        startDate,
-        endDate,
-        onlyFavorites,
-      });
-    }, 500);
-    return () => clearTimeout(debounceTimeout.current);
-  }, [
-    searchQuery,
-    selectedLocation,
-    selectedCategory,
-    startDate,
-    endDate,
-    onlyFavorites,
-    token,
-  ]);
+  //Search + Filter
+  const handleApplyFilters = () => {
+    fetchFilteredEvents({
+      keyword: searchQuery,
+      location: selectedLocation,
+      categoryId: categoryMap[selectedCategory],
+      startDate,
+      endDate,
+      onlyFavorites,
+    });
+    toast.success("Filters applied.", {
+      position: "top-right",
+      autoClose: 2000,
+      theme: "colored",
+    });
+  };
+
+  const handleSearch = () => {
+    fetchFilteredEvents({
+      keyword: searchQuery,
+      location: selectedLocation,
+      categoryId: categoryMap[selectedCategory],
+      startDate,
+      endDate,
+      onlyFavorites,
+    });
+  };
 
   const handleClearFilters = () => {
     setSearchQuery("");
@@ -191,6 +217,14 @@ const EventList = () => {
       position: "top-right",
       autoClose: 2000,
       theme: "colored",
+    });
+    fetchFilteredEvents({
+      keyword: "",
+      location: "",
+      categoryId: null,
+      startDate: "",
+      endDate: "",
+      onlyFavorites: false,
     });
   };
 
@@ -262,14 +296,20 @@ const EventList = () => {
   return (
     <div className="p-4 max-w-7xl mx-auto">
       {/* Search Bar */}
-      <div className="mb-4">
+      <div className="mb-4 flex items-center gap-2">
         <input
           type="text"
           placeholder="Search events..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full rounded p-3 bg-white border border-gray-300 hover:border-black focus:border-[#712681] focus:border-2 focus:outline-none"
+          className="flex-1 rounded p-3 bg-white border border-gray-300 hover:border-black focus:border-[#712681] focus:border-2 focus:outline-none"
         />
+        <button
+          onClick={handleSearch}
+          className="h-[48px] w-[48px] flex items-center justify-center rounded bg-[#9030a5] text-white hover:bg-[#751d8a] shadow-md transition"
+        >
+          <Search size={18} />
+        </button>
       </div>
 
       {/* Filter Toggle Button */}
@@ -366,13 +406,24 @@ const EventList = () => {
             </div>
           )}
 
-          {/* Clear Filter Button */}
-          <div className="flex justify-end">
+          {/* Apply & Clear Filter Button */}
+          <div className="flex justify-between flex-wrap gap-4">
             <button
               onClick={handleClearFilters}
               className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-gray-800 font-medium shadow transition"
             >
               Clear Filters
+            </button>
+            <button
+              onClick={handleApplyFilters}
+              disabled={!isFilterActive}
+              className={`px-4 py-2 rounded font-medium shadow transition ${
+                isFilterActive
+                  ? "bg-[#9030a5] text-white hover:bg-[#751d8a]"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+            >
+              Apply Filters
             </button>
           </div>
         </div>
