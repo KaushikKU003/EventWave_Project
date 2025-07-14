@@ -24,6 +24,7 @@ import Lock from "../Images/Lock.png";
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import "../App.css";
 
 const Home = () => {
   const { isLoggedIn } = useContext(AuthContext);
@@ -62,27 +63,23 @@ const Home = () => {
     },
   ];
 
-  const Steps=[
-            {
-              title: "Discover Events",
-              icon: (
-                <FaSearchLocation className="text-3xl text-purple-800 mb-2" />
-              ),
-              desc: "Browse a variety of events happening around you with ease.",
-            },
-            {
-              title: "Register or Create",
-              icon: <FaRegEdit className="text-3xl text-purple-800 mb-2" />,
-              desc: "Register yourself for events or create your own with ease and flexibility.",
-            },
-            {
-              title: "Attend & Enjoy!",
-              icon: (
-                <IoHappyOutline className="text-3xl text-purple-800 mb-2" />
-              ),
-              desc: "Join your community, have fun, and make unforgettable memories.",
-            },
-          ]
+  const Steps = [
+    {
+      title: "Discover Events",
+      icon: <FaSearchLocation className="text-3xl text-purple-800 mb-2" />,
+      desc: "Browse a variety of events happening around you with ease.",
+    },
+    {
+      title: "Register or Create",
+      icon: <FaRegEdit className="text-3xl text-purple-800 mb-2" />,
+      desc: "Register yourself for events or create your own with ease and flexibility.",
+    },
+    {
+      title: "Attend & Enjoy!",
+      icon: <IoHappyOutline className="text-3xl text-purple-800 mb-2" />,
+      desc: "Join your community, have fun, and make unforgettable memories.",
+    },
+  ];
 
   const handleExplore = () => {
     navigate("/events");
@@ -119,9 +116,7 @@ const Home = () => {
       </section>
 
       {/* Parallax Section - No external library */}
-      <section
-        className="home-page-parallx bg-fixed bg-center bg-cover h-[400px] flex items-center justify-center font-Abril"
-      >
+      <section className="home-page-parallx bg-fixed bg-center bg-cover h-[400px] flex items-center justify-center font-Abril">
         <div className="w-full px-4 sm:px-6">
           <div className="glass-bg p-8 rounded-xl text-center max-w-3xl mx-auto">
             <h2 className="text-4xl md:text-5xl font-bold text-purple-100">
