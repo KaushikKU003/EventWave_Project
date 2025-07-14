@@ -66,7 +66,6 @@ const Login = () => {
         token: token,
         customer_username: user.username,
       });
-      console.log(response.data);
       
       // Show success toast
       toast.success(response.data.message, {
