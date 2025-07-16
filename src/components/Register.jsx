@@ -18,6 +18,8 @@ import DialogContent from "@mui/material/DialogContent";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import { MuiOtpInput } from "mui-one-time-password-input";
+import "../App.css";
+
 const Register = () => {
   const [fullName, setFullName] = useState("");
   const [userType, setUserType] = useState("USER");
